@@ -1,0 +1,42 @@
+version: "3.9"
+
+
+services:
+  db:
+    container_name: postgres_db
+    image: postgres:15.1-alpine
+    restart: always
+    environment:
+      - PGUSER=${DB_USER}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT:-5432}:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    ports:
+      - ${API_PORT:-8000}:8000
+    command: bash -c "uvicorn main:app --reload --host ${API_HOST}"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
