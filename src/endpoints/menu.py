@@ -7,11 +7,11 @@ from fastapi import (
     status,
 )
 
+from src.db.schemas import Status
 from src.db.schemas.menu import (
     MenuCreate,
     MenuResponse,
     MenuUpdate,
-    Status,
 )
 from src.services.menu import (
     MenuService,
