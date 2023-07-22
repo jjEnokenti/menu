@@ -21,8 +21,8 @@ class MenuResponse(BaseModel):
     id: uuid.UUID
     title: str
     description: str
-    quantity_submenu: int = 0
-    quantity_dish: int = 0
+    submenus_count: int = 0
+    dishes_count: int = 0
 
     class Config:
         from_attributes = True
