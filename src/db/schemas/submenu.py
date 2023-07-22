@@ -22,7 +22,7 @@ class SubmenuResponse(BaseModel):
     title: str
     description: str
     menu_id: uuid.UUID
-    quantity_dish: int = 0
+    dishes_count: int = 0
 
     class Config:
         from_attributes = True
