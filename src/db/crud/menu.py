@@ -23,6 +23,12 @@ from src.db.schemas.menu import (
 )
 
 
+__all__ = (
+    'MenuCRUD',
+    'get_menu_crud',
+)
+
+
 class MenuCRUD(AbstractCRUD):
     """Database layer."""
 
@@ -35,8 +41,8 @@ class MenuCRUD(AbstractCRUD):
             self.menu_model.id,
             self.menu_model.title,
             self.menu_model.description,
-            func.count(distinct(self.submenu_model.id)).label('quantity_submenu'),
-            func.count(self.submenu_model.dishes).label('quantity_dish')
+            func.count(distinct(self.submenu_model.id)).label('submenus_count'),
+            func.count(self.submenu_model.dishes).label('dishes_count')
         ).join(
             self.submenu_model,
             self.menu_model.id == self.submenu_model.menu_id,
