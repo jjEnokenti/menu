@@ -3,12 +3,9 @@ from abc import (
     abstractmethod,
 )
 
-from src.db.crud.menu import MenuCRUD
-
 
 class AbstractService(ABC):
     """Abstract service class."""
-    crud: MenuCRUD
 
     @abstractmethod
     async def get_detail(self, *args, **kwargs):
