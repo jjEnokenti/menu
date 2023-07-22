@@ -11,6 +11,8 @@ SQLAlchemy = "^2.0.19"
 uvicorn = "^0.23.1"
 python-dotenv = "^1.0.0"
 pre-commit = "^3.3.3"
+asyncpg = "^0.28.0"
+alembic = "^1.11.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
