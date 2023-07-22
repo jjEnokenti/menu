@@ -22,7 +22,7 @@ from src.services.submenu import (
 submenu_route = APIRouter()
 
 
-@submenu_route.get('/',
+@submenu_route.get('/submenus',
                    summary='Get list',
                    description='Get list of submenus',
                    response_model=List[SubmenuResponse],
@@ -32,7 +32,7 @@ async def get_list_submenu(menu_id: uuid.UUID,
     return await submenu_service.get_list(menu_id)
 
 
-@submenu_route.post('/',
+@submenu_route.post('/submenus',
                     summary='Create submenu',
                     description='Create new submenu',
                     response_model=SubmenuResponse,
@@ -43,7 +43,7 @@ async def create_submenu(menu_id: uuid.UUID,
     return await submenu_service.create(menu_id=menu_id, data=data)
 
 
-@submenu_route.get('/{submenu_id}/',
+@submenu_route.get('/submenus/{submenu_id}',
                    summary='get detail',
                    description='Get detail of submenu by submenu_id',
                    response_model=SubmenuResponse,
@@ -53,7 +53,7 @@ async def get_detail_submenu(submenu_id: uuid.UUID,
     return await submenu_service.get_detail(submenu_id=submenu_id)
 
 
-@submenu_route.patch('/{submenu_id}/',
+@submenu_route.patch('/submenus/{submenu_id}',
                      summary='Update submenu',
                      description='Update submenu by submenu_id',
                      response_model=SubmenuResponse,
@@ -64,7 +64,7 @@ async def update_submenu(submenu_id: uuid.UUID,
     return await submenu_service.update(submenu_id=submenu_id, data=data)
 
 
-@submenu_route.delete('/{submenu_id}/',
+@submenu_route.delete('/submenus/{submenu_id}',
                       summary='Delete submenu',
                       description='Delete submenu by submenu_id',
                       response_model=Status,
