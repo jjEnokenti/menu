@@ -89,7 +89,9 @@ class MenuCRUD(AbstractCRUD):
 
         return new_menu
 
-    async def update(self, menu_id: uuid.UUID, data: MenuUpdate) -> Optional[models.Menu]:
+    async def update(self,
+                     menu_id: uuid.UUID,
+                     data: MenuUpdate) -> Optional[models.Menu]:
         """Update exist menu."""
         menu = await self._get_from_db(menu_id)
 
