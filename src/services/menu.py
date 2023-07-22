@@ -1,7 +1,7 @@
 import uuid
 from typing import (
+    Optional,
     Sequence,
-    Union,
 )
 
 from fastapi import (
@@ -11,25 +11,26 @@ from fastapi import (
 )
 from sqlalchemy import Row
 
+from src.db import models
 from src.db.crud.menu import (
     MenuCRUD,
     get_menu_crud,
 )
+from src.db.schemas import Status
 from src.db.schemas.menu import (
     MenuCreate,
-    MenuResponse,
     MenuUpdate,
-    Status,
 )
 from src.services.abstract_service import AbstractService
 
 
 class MenuService(AbstractService):
     """Service layer."""
+
     def __init__(self, crud: MenuCRUD):
         self.crud = crud
 
-    async def get_detail(self, menu_id: uuid.UUID) -> Union[MenuResponse, Exception]:
+    async def get_detail(self, menu_id: uuid.UUID) -> Optional[models.Menu]:
         """Get detail of menu from DB layer."""
         try:
             menu = await self.crud.get_detail(menu_id)
@@ -45,9 +46,9 @@ class MenuService(AbstractService):
                     detail='menu not found'
                 )
 
-        return MenuResponse.model_validate(menu)
+        return menu
 
-    async def get_list(self) -> Union[Sequence[Row], Exception]:
+    async def get_list(self) -> Sequence[Row]:
         """Get list of menus from DB layer."""
         try:
             menus = await self.crud.get_list()
@@ -59,7 +60,7 @@ class MenuService(AbstractService):
 
         return menus
 
-    async def create(self, data: MenuCreate) -> Union[MenuResponse, Exception]:
+    async def create(self, data: MenuCreate) -> Optional[models.Menu]:
         """Create new menu logic."""
         try:
             async with self.crud.session.begin():
@@ -70,9 +71,11 @@ class MenuService(AbstractService):
                 detail=error.args[0].split(':')[2].strip()
             )
 
-        return MenuResponse.model_validate(new_menu)
+        return new_menu
 
-    async def update(self, menu_id: uuid.UUID, data: MenuUpdate) -> Union[MenuResponse, Exception]:
+    async def update(self,
+                     menu_id: uuid.UUID,
+                     data: MenuUpdate) -> Optional[models.Menu]:
         """Update menu logic."""
         try:
             async with self.crud.session.begin():
@@ -89,7 +92,7 @@ class MenuService(AbstractService):
                     detail='menu not found'
                 )
 
-        return MenuResponse.model_validate(menu)
+        return menu
 
     async def delete(self, menu_id: uuid.UUID) -> Status:
         """Delete menu logic."""
