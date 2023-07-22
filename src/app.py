@@ -3,13 +3,20 @@ from fastapi import (
     FastAPI,
 )
 
-from src.endpoints.menu import menu_route
-from src.endpoints.submenu import submenu_route
+from src.endpoints import (
+    dish_route,
+    menu_route,
+    submenu_route,
+)
 
+
+__all__ = (
+    'app',
+)
 
 app = FastAPI(
     title='Restaurant menu API',
-    description='FastApi project',
+    description='FastAPI project',
     version='0.1.1'
 )
 
@@ -19,12 +26,16 @@ main_route = APIRouter(
 
 main_route.include_router(
     menu_route,
-    prefix='/menus',
     tags=['menus'],
 )
 main_route.include_router(
     submenu_route,
-    prefix='/menus/{menu_id}/submenus',
+    prefix='/menus/{menu_id}',
     tags=['submenu'],
+)
+main_route.include_router(
+    dish_route,
+    prefix='/menus/{menu_id}/submenus/{submenu_id}',
+    tags=['dishes'],
 )
 app.include_router(main_route)
