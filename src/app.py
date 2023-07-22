@@ -17,7 +17,8 @@ __all__ = (
 app = FastAPI(
     title='Restaurant menu API',
     description='FastAPI project',
-    version='0.1.1'
+    version='0.1.1',
+    docs_url='/api/v1/docs',
 )
 
 main_route = APIRouter(
