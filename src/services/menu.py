@@ -37,7 +37,7 @@ class MenuService(AbstractService):
         except Exception as error:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=error.args[0].split(':')[2].strip()
+                detail=error.args[0]
             )
         else:
             if not menu:
@@ -55,7 +55,7 @@ class MenuService(AbstractService):
         except Exception as error:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=error.args[0].split(':')[2].strip()
+                detail=error.args[0]
             )
 
         return menus
@@ -68,7 +68,7 @@ class MenuService(AbstractService):
         except Exception as error:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=error.args[0].split(':')[2].strip()
+                detail=error.args[0]
             )
 
         return new_menu
@@ -83,7 +83,7 @@ class MenuService(AbstractService):
         except Exception as error:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=error.args[0].split(':')[2].strip()
+                detail=error.args[0]
             )
         else:
             if not menu:
@@ -102,7 +102,7 @@ class MenuService(AbstractService):
         except Exception as error:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=error.args[0].split(':')[2].strip()
+                detail=error.args[0]
             )
         else:
             if not is_deleted:
