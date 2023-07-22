@@ -19,9 +19,7 @@ from src.services.submenu import (
 )
 
 
-submenu_route = APIRouter(
-    prefix='/menus/{menu_id}/submenus'
-)
+submenu_route = APIRouter()
 
 
 @submenu_route.get('/',
