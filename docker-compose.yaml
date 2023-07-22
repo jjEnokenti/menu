@@ -33,7 +33,8 @@ services:
       - ./:/app
     ports:
       - ${API_PORT:-8000}:8000
-    command: bash -c "uvicorn main:app --reload --host ${API_HOST}"
+    command: bash -c "alembic upgrade head &&
+      uvicorn main:app --reload --host ${API_HOST} --port ${API_PORT}"
     depends_on:
       db:
         condition: service_healthy
