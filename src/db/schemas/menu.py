@@ -17,7 +17,7 @@ class MenuBase(BaseModel):
     submenus: Optional[List[Type[Submenu]]] | None = None
 
 
-class MenuCreate(MenuBase):
+class MenuCreate(BaseModel):
     """Create menu schema."""
     title: str
     description: str
