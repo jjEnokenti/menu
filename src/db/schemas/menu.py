@@ -1,20 +1,7 @@
 import uuid
-from typing import (
-    List,
-    Optional,
-    Type,
-)
+from typing import Optional
 
 from pydantic import BaseModel
-
-from src.db.models import Submenu
-
-
-class MenuBase(BaseModel):
-    """Base menu schema."""
-    title: str
-    description: str
-    submenus: Optional[List[Type[Submenu]]] | None = None
 
 
 class MenuCreate(BaseModel):
@@ -25,13 +12,8 @@ class MenuCreate(BaseModel):
 
 class MenuUpdate(BaseModel):
     """Update menu schema."""
-    title: str | None = None
-    description: str | None = None
-
-
-class MenuInDB(MenuBase):
-    """Menu schema in DB."""
-    id: uuid.UUID
+    title: Optional[str]
+    description: Optional[str]
 
 
 class MenuResponse(BaseModel):
@@ -44,8 +26,3 @@ class MenuResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class Status(BaseModel):
-    """Response status schema."""
-    message: str
