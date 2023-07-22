@@ -68,7 +68,7 @@ async def update_menu(menu_id: uuid.UUID,
                    summary='Delete menu',
                    description='Delete menu by menu_id',
                    response_model=Status,
-                   status_code=status.HTTP_204_NO_CONTENT)
+                   status_code=status.HTTP_200_OK)
 async def delete_menu(menu_id: uuid.UUID,
                       menu_service: MenuService = Depends(get_menu_service)):
     return await menu_service.delete(menu_id)
