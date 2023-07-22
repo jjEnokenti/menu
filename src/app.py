@@ -31,7 +31,7 @@ main_route.include_router(
 main_route.include_router(
     submenu_route,
     prefix='/menus/{menu_id}',
-    tags=['submenu'],
+    tags=['submenus'],
 )
 main_route.include_router(
     dish_route,
