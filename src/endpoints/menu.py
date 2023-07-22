@@ -22,7 +22,7 @@ from src.services.menu import (
 menu_route = APIRouter()
 
 
-@menu_route.get('/',
+@menu_route.get('/menus',
                 summary='Get list',
                 description='Get list of menus',
                 response_model=List[MenuResponse],
@@ -31,7 +31,7 @@ async def get_list_menu(menu_service: MenuService = Depends(get_menu_service)):
     return await menu_service.get_list()
 
 
-@menu_route.post('/',
+@menu_route.post('/menus',
                  summary='Create menu',
                  description='Create new menu',
                  response_model=MenuResponse,
@@ -41,7 +41,7 @@ async def create_menu(data: MenuCreate,
     return await menu_service.create(data)
 
 
-@menu_route.get('/{menu_id}/',
+@menu_route.get('/menus/{menu_id}',
                 summary='get detail',
                 description='Get detail of menu by menu_id',
                 response_model=MenuResponse,
@@ -51,7 +51,7 @@ async def get_detail_menu(menu_id: uuid.UUID,
     return await menu_service.get_detail(menu_id=menu_id)
 
 
-@menu_route.patch('/{menu_id}/',
+@menu_route.patch('/menus/{menu_id}',
                   summary='Update menu',
                   description='Update menu by menu_id',
                   response_model=MenuResponse,
@@ -62,7 +62,7 @@ async def update_menu(menu_id: uuid.UUID,
     return await menu_service.update(menu_id=menu_id, data=data)
 
 
-@menu_route.delete('/{menu_id}/',
+@menu_route.delete('/menus/{menu_id}',
                    summary='Delete menu',
                    description='Delete menu by menu_id',
                    response_model=Status,
