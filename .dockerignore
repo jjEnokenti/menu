@@ -1,0 +1,14 @@
+postgres-data
+__pycache__
+.git
+.pytest_cache
+.idea
+
+.gitignore
+.env.example
+.pre-commit-config.yaml
+Dockerfile
+Makefile
+README.md
+requirements.txt
+setup.cfg
