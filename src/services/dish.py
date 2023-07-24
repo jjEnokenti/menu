@@ -18,7 +18,6 @@ from src.db.crud.dish import (
 )
 from src.db.schemas import Status
 from src.db.schemas import dish as dish_schemas
-from src.db.schemas.dish import DishResponse
 from src.services.abstract_service import AbstractService
 
 
@@ -74,7 +73,7 @@ class DishService(AbstractService):
                 detail=error.args[0]
             )
 
-        return DishResponse.model_validate(new_dish)
+        return new_dish
 
     async def update(self,
                      dish_id: uuid.UUID,
