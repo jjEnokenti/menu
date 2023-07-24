@@ -1,0 +1,41 @@
+version: "3.9"
+
+
+services:
+  test_db:
+    container_name: test_postgres_db
+    image: postgres:15.1-alpine
+    restart: always
+    networks:
+      - test_network
+    environment:
+      - PGUSER=${DB_USER}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${TEST_DB_NAME}
+      - POSTGRES_INITDB_ARGS='-A md5'
+    ports:
+      - ${TEST_DB_PORT:-5433}:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  test_api:
+    container_name: test_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - test_network
+    env_file:
+      - .env
+    command: bash -c "pytest -vs"
+    depends_on:
+      test_db:
+        condition: service_healthy
+
+networks:
+  test_network:
+    driver: bridge
