@@ -18,7 +18,6 @@ from src.db.crud.dish import (
 )
 from src.db.schemas import Status
 from src.db.schemas import dish as dish_schemas
-from src.db.schemas.dish import DishResponse
 from src.services.abstract_service import AbstractService
 
 
