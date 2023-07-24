@@ -24,5 +24,5 @@ class SubmenuResponse(BaseModel):
     menu_id: uuid.UUID
     dishes_count: int = 0
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

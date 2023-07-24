@@ -24,5 +24,5 @@ class MenuResponse(BaseModel):
     submenus_count: int = 0
     dishes_count: int = 0
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

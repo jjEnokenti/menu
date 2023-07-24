@@ -24,8 +24,7 @@ class DishResponse(BaseModel):
     id: uuid.UUID
     title: str
     description: str
-    submenu_id: uuid.UUID
     price: decimal.Decimal
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
