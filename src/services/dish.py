@@ -74,7 +74,7 @@ class DishService(AbstractService):
                 detail=error.args[0]
             )
 
-        return DishResponse.model_validate(new_dish)
+        return new_dish
 
     async def update(self,
                      dish_id: uuid.UUID,
