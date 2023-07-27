@@ -8,13 +8,13 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.app import app
-from src.config import test_settings
+from src.config import settings
 from src.db.core import get_db
 from src.db.models import Base
 
 
 async_test_engine = create_async_engine(
-    url=test_settings.DATABASE_URL,
+    url=settings.DATABASE_URL,
 )
 
 async_test_session = AsyncSession(
@@ -33,8 +33,10 @@ async def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 
 
-@pytest.fixture(autouse=True, scope='module')
+@pytest.fixture(autouse=True, scope='class')
 async def prepare_database():
+    assert settings.MODE == 'TEST'
+
     async with async_test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -61,43 +63,11 @@ def get_app():
 
 
 @pytest.fixture
-def create_menu_data():
-    return {
-        'title': 'Menu 1',
-        'description': 'Menu description 1'
-    }
-
-
-@pytest.fixture
-def create_submenu_data():
-    return {
-        'title': 'Submenu 1',
-        'description': 'Submenu description 1'
-    }
-
-
-@pytest.fixture
 def create_dish_data():
     return {
         'title': 'Dish 1',
         'description': 'Dish description 1',
         'price': '100.50',
-    }
-
-
-@pytest.fixture
-def update_menu_data():
-    return {
-        'title': 'Updated menu',
-        'description': 'Updated menu description'
-    }
-
-
-@pytest.fixture
-def update_submenu_data():
-    return {
-        'title': 'Updated submenu',
-        'description': 'Updated submenu description'
     }
 
 
