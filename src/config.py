@@ -1,37 +1,31 @@
-import os
-
 from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
 
 __all__ = (
     'settings',
-    'test_settings',
 )
 
 load_dotenv()
 
 
-class BaseConfig:
-    """Base config."""
-    DB_USER = os.getenv('DB_USER')
-    DB_PASSWORD = os.getenv('DB_PASSWORD')
-    DB_HOST = os.getenv('DB_HOST')
-    DB_NAME = os.getenv('DB_NAME')
+class Settings(BaseSettings):
+    """App settings."""
+    MODE: str
 
-    DATABASE_URL = (f'postgresql+asyncpg://'
-                    f'{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}')
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_HOST: str
+    DB_NAME: str
+    DB_PORT: int
 
+    @property
+    def DATABASE_URL(self) -> str:
+        return (f'postgresql+asyncpg://'
+                f'{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}')
 
-class TestConfig:
-    """Test config."""
-    DB_USER = os.getenv('DB_USER', 'test')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', 'test')
-    DB_HOST = os.getenv('TEST_DB_HOST', 'test_db')
-    DB_NAME = os.getenv('TEST_DB_NAME', 'test_menu_db')
-
-    DATABASE_URL = (f'postgresql+asyncpg://'
-                    f'{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}')
+    class ConfigDict:
+        env_files = '.env'
 
 
-settings = BaseConfig()
-test_settings = TestConfig()
+settings = Settings()
