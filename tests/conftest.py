@@ -15,7 +15,8 @@ from src.db.models import Base
 
 pytest_plugins = (
     'tests.menu_fixtures,'
-    'tests.submenu_fixtures'
+    'tests.submenu_fixtures,'
+    'tests.dish_fixtures'
 )
 
 async_test_engine = create_async_engine(
@@ -65,21 +66,3 @@ async def client():
 @pytest.fixture
 def get_app():
     return app
-
-
-@pytest.fixture
-def create_dish_data():
-    return {
-        'title': 'Dish 1',
-        'description': 'Dish description 1',
-        'price': '100.50',
-    }
-
-
-@pytest.fixture
-def update_dish_data():
-    return {
-        'title': 'Updated dish',
-        'description': 'Updated dish description',
-        'price': '999.99',
-    }
