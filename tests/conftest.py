@@ -13,6 +13,11 @@ from src.db.core import get_db
 from src.db.models import Base
 
 
+pytest_plugins = (
+    'tests.menu_fixtures,'
+    'tests.submenu_fixtures'
+)
+
 async_test_engine = create_async_engine(
     url=settings.DATABASE_URL,
 )
