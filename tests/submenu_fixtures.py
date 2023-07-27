@@ -38,7 +38,7 @@ async def create_submenu_response(
         get_app: FastAPI,
         client: AsyncClient,
         get_menu_id: uuid.UUID,
-        create_submenu_data: Dict[str, Union[str, int, uuid.UUID]]
+        create_submenu_data: Dict[str, str]
 ) -> Response:
     """Request to create a submenu."""
 
@@ -77,7 +77,7 @@ async def update_submenu_response(
         get_app: FastAPI,
         get_menu_id: uuid.UUID,
         get_submenu_id: uuid.UUID,
-        update_submenu_data: Dict[str, Union[str, int, uuid.UUID]]
+        update_submenu_data: Dict[str, str]
 ) -> Response:
     """Request to update the detail of submenu."""
 
