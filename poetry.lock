@@ -326,6 +326,18 @@ python-versions = ">=3.7"
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
+name = "pydantic-settings"
+version = "2.0.2"
+description = "Settings management using Pydantic"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+pydantic = ">=2.0.1"
+python-dotenv = ">=0.21.0"
+
+[[package]]
 name = "pytest"
 version = "7.4.0"
 description = "pytest: simple powerful testing with Python"
@@ -358,6 +370,18 @@ pytest = ">=7.0.0"
 [package.extras]
 docs = ["sphinx (>=5.3)", "sphinx-rtd-theme (>=1.0)"]
 testing = ["coverage (>=6.2)", "hypothesis (>=5.7.1)", "flaky (>=3.5.0)", "mypy (>=0.931)", "pytest-trio (>=0.7.0)"]
+
+[[package]]
+name = "pytest-dotenv"
+version = "0.5.2"
+description = "A py.test plugin that parses environment files before running tests"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pytest = ">=5.0.0"
+python-dotenv = ">=0.9.1"
 
 [[package]]
 name = "python-dotenv"
@@ -488,7 +512,7 @@ test = ["covdefaults (>=2.3)", "coverage-enable-subprocess (>=1)", "coverage (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "82db60581565c7b3f79dd76538fce4e7167e37aa9c7b11501fe75a1f72ff3c19"
+content-hash = "743adb28dada4e1e94b002a886f3560d9eac3f0ab6c8e8fdabdf5279c54c5c56"
 
 [metadata.files]
 alembic = []
@@ -519,8 +543,10 @@ pluggy = []
 pre-commit = []
 pydantic = []
 pydantic-core = []
+pydantic-settings = []
 pytest = []
 pytest-asyncio = []
+pytest-dotenv = []
 python-dotenv = []
 pyyaml = []
 sniffio = []
