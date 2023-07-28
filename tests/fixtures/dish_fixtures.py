@@ -16,11 +16,16 @@ from httpx import (
 async def dish_list_response(
         get_app: FastAPI,
         client: AsyncClient,
-        get_submenu_id: uuid.UUID
+        get_submenu_id: uuid.UUID,
+        get_menu_id: uuid.UUID
 ) -> Response:
     """Request to return the list of dishes."""
 
-    url = get_app.url_path_for('get_list_dish', menu_id=get_submenu_id)
+    url = get_app.url_path_for(
+        'get_list_dish',
+        menu_id=get_menu_id,
+        submenu_id=get_submenu_id
+    )
     dishes = await client.get(url, follow_redirects=True)
 
     return dishes
@@ -38,11 +43,16 @@ async def create_dish_response(
         get_app: FastAPI,
         client: AsyncClient,
         get_submenu_id: uuid.UUID,
+        get_menu_id: uuid.UUID,
         create_dish_data: Dict[str, str]
 ) -> Response:
     """Request to create a dish."""
 
-    url = get_app.url_path_for('create_dish', menu_id=get_submenu_id)
+    url = get_app.url_path_for(
+        'create_dish',
+        menu_id=get_menu_id,
+        submenu_id=get_submenu_id
+    )
     dish = await client.post(
         url,
         json=create_dish_data,
@@ -141,7 +151,7 @@ async def non_existent_dish_response(
 
 
 @pytest.fixture
-def response_submenu_data(
+def response_dish_data(
         get_submenu_id: uuid.UUID,
         get_dish_id: uuid.UUID
 ) -> Dict[str, Union[str, int, uuid.UUID]]:
@@ -151,13 +161,12 @@ def response_submenu_data(
         'id': get_dish_id,
         'title': 'My dish 1',
         'description': 'My dish description 1',
-        'submenu_id': get_submenu_id,
         'price': '100.50'
     }
 
 
 @pytest.fixture
-def create_submenu_data() -> Dict[str, str]:
+def create_dish_data() -> Dict[str, str]:
     """Data for create of dish."""
 
     return {
@@ -168,7 +177,7 @@ def create_submenu_data() -> Dict[str, str]:
 
 
 @pytest.fixture
-def update_submenu_data() -> Dict[str, str]:
+def update_dish_data() -> Dict[str, str]:
     """Data for update of dish."""
 
     return {
