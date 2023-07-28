@@ -14,9 +14,9 @@ from src.db.models import Base
 
 
 pytest_plugins = (
-    'tests.menu_fixtures,'
-    'tests.submenu_fixtures,'
-    'tests.dish_fixtures'
+    'tests.fixtures.menu_fixtures,'
+    'tests.fixtures.submenu_fixtures,'
+    'tests.fixtures.dish_fixtures'
 )
 
 async_test_engine = create_async_engine(
