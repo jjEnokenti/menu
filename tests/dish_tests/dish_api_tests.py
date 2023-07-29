@@ -4,6 +4,7 @@ from typing import (
     Union,
 )
 
+import pytest
 from httpx import Response
 
 
@@ -14,7 +15,6 @@ class TestDishAPI:
             self,
             create_menu_response: Response,
             response_menu_data: Dict[str, Union[str, int, uuid.UUID]],
-            create_menu_data: Dict[str, str]
     ):
         """Test creating a menu for further testing of the dish."""
 
@@ -33,7 +33,6 @@ class TestDishAPI:
             self,
             create_submenu_response: Response,
             response_submenu_data: Dict[str, Union[str, int, uuid.UUID]],
-            create_submenu_data: Dict[str, str]
     ):
         """Test creating a submenu for further testing of the dish."""
 
@@ -61,11 +60,16 @@ class TestDishAPI:
         assert dish_list_response.status_code == 200
         assert dish_list_response.json() == []
 
+    @pytest.mark.parametrize(
+        'create_dish_response', [
+            'create_dish_data'
+        ],
+        indirect=['create_dish_response']
+    )
     async def test_dish_create_successful(
             self,
             create_dish_response: Response,
             response_dish_data: Dict[str, Union[str, int, uuid.UUID]],
-            create_dish_data: Dict[str, str]
     ):
         """Test the successful creation of the dish."""
 
@@ -81,11 +85,11 @@ class TestDishAPI:
         )
         assert (
                 create_dish_response.json().get('title') ==
-                create_dish_data.get('title')
+                response_dish_data.get('title')
         )
         assert (
                 create_dish_response.json().get('description') ==
-                create_dish_data.get('description')
+                response_dish_data.get('description')
         )
 
     async def test_get_list_of_dishes_not_empty(
@@ -100,11 +104,10 @@ class TestDishAPI:
         assert isinstance(dish_list_response.json(), list)
         assert dish_list_response.json() == [response_dish_data]
 
-    async def test_get_detail_of_dishe_successful(
+    async def test_get_detail_of_dish_successful(
             self,
             detail_dish_response: Response,
             response_dish_data: Dict[str, Union[str, int, uuid.UUID]],
-            create_dish_data: Dict[str, str]
     ):
         """Test for getting a detail of dish."""
 
@@ -120,15 +123,15 @@ class TestDishAPI:
         )
         assert (
                 detail_dish_response.json().get('title') ==
-                create_dish_data.get('title')
+                response_dish_data.get('title')
         )
         assert (
                 detail_dish_response.json().get('description') ==
-                create_dish_data.get('description')
+                response_dish_data.get('description')
         )
         assert (
                 detail_dish_response.json().get('price') ==
-                create_dish_data.get('price')
+                response_dish_data.get('price')
         )
 
     async def test_update_detail_of_dish_successful(
