@@ -10,6 +10,7 @@ from httpx import (
     AsyncClient,
     Response,
 )
+from pytest_asyncio.plugin import SubRequest
 
 
 @pytest.fixture
@@ -34,8 +35,12 @@ async def dish_list_response(
 @pytest.fixture
 async def get_dish_id(dish_list_response: Response) -> uuid.UUID:
     """Pars id from first dish in list of dishes."""
+    dishes = dish_list_response.json()
 
-    return dish_list_response.json()[0].get('id')
+    if dishes:
+        return dishes[-1].get('id')
+
+    return uuid.uuid4()
 
 
 @pytest.fixture
@@ -44,18 +49,21 @@ async def create_dish_response(
         client: AsyncClient,
         get_submenu_id: uuid.UUID,
         get_menu_id: uuid.UUID,
-        create_dish_data: Dict[str, str]
+        request: SubRequest,
 ) -> Response:
     """Request to create a dish."""
+
+    data = request.getfixturevalue(request.param)
 
     url = get_app.url_path_for(
         'create_dish',
         menu_id=get_menu_id,
         submenu_id=get_submenu_id
     )
+
     dish = await client.post(
         url,
-        json=create_dish_data,
+        json=data,
         follow_redirects=True
     )
 
@@ -152,16 +160,16 @@ async def non_existent_dish_response(
 
 @pytest.fixture
 def response_dish_data(
-        get_submenu_id: uuid.UUID,
-        get_dish_id: uuid.UUID
+        get_dish_id: uuid.UUID,
+        dish_list_response: Response,
 ) -> Dict[str, Union[str, int, uuid.UUID]]:
     """Response data of dish."""
 
     return {
         'id': get_dish_id,
-        'title': 'My dish 1',
-        'description': 'My dish description 1',
-        'price': '100.50'
+        'title': dish_list_response.json()[-1].get('title'),
+        'description': dish_list_response.json()[-1].get('description'),
+        'price': dish_list_response.json()[-1].get('price')
     }
 
 
@@ -173,6 +181,17 @@ def create_dish_data() -> Dict[str, str]:
         'title': 'My dish 1',
         'description': 'My dish description 1',
         'price': '100.50'
+    }
+
+
+@pytest.fixture
+def create_dish_data_second() -> Dict[str, str]:
+    """Data for create of second dish."""
+
+    return {
+        'title': 'My dish 2',
+        'description': 'My dish description 2',
+        'price': '15.50'
     }
 
 
