@@ -29,8 +29,12 @@ async def submenus_list_response(
 @pytest.fixture
 async def get_submenu_id(submenus_list_response: Response) -> uuid.UUID:
     """Pars id from first submenu in submenu list."""
+    submenus = submenus_list_response.json()
 
-    return submenus_list_response.json()[0].get('id')
+    if submenus:
+        return submenus[-1].get('id')
+
+    return uuid.uuid4()
 
 
 @pytest.fixture
@@ -135,16 +139,17 @@ async def non_existent_submenu_response(
 @pytest.fixture
 def response_submenu_data(
         get_submenu_id: uuid.UUID,
-        get_menu_id: uuid.UUID
+        get_menu_id: uuid.UUID,
+        submenus_list_response: Response
 ) -> Dict[str, Union[str, int, uuid.UUID]]:
     """Response data of submenu."""
 
     return {
         'id': get_submenu_id,
-        'title': 'My submenu 1',
-        'description': 'My submenu description 1',
+        'title': submenus_list_response.json()[-1].get('title'),
+        'description': submenus_list_response.json()[-1].get('description'),
         'menu_id': get_menu_id,
-        'dishes_count': 0
+        'dishes_count': submenus_list_response.json()[-1].get('dishes_count')
     }
 
 
