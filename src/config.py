@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     @property
     def DATABASE_URL(self) -> str:
         return (f'postgresql+asyncpg://'
-                f'{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}')
+                f'{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}')
 
     class ConfigDict:
         env_files = '.env'
