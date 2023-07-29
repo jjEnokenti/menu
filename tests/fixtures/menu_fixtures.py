@@ -28,15 +28,19 @@ async def menus_list_response(
 @pytest.fixture
 async def get_menu_id(menus_list_response: Response) -> uuid.UUID:
     """Pars id from first menu in menu list."""
+    menus = menus_list_response.json()
 
-    return menus_list_response.json()[0].get('id')
+    if menus:
+        return menus[-1].get('id')
+
+    return uuid.uuid4()
 
 
 @pytest.fixture
 async def create_menu_response(
         get_app: FastAPI,
         client: AsyncClient,
-        create_menu_data: Dict[str, Union[str, int, uuid.UUID]]
+        create_menu_data: Dict[str, str]
 ) -> Response:
     """Request to create a menu."""
 
@@ -69,7 +73,7 @@ async def update_menu_response(
         client: AsyncClient,
         get_menu_id: uuid.UUID,
         get_app: FastAPI,
-        update_menu_data: Dict[str, Union[str, int, uuid.UUID]]
+        update_menu_data: Dict[str, str]
 ) -> Response:
     """Request to update the detail of menu."""
 
@@ -115,16 +119,17 @@ async def non_existent_menu_response(
 
 @pytest.fixture
 def response_menu_data(
-        get_menu_id: uuid.UUID
+        get_menu_id: uuid.UUID,
+        detail_menu_response: Response
 ) -> Dict[str, Union[str, int, uuid.UUID]]:
     """Response data of menu."""
 
     return {
         'id': get_menu_id,
-        'title': 'My menu 1',
-        'description': 'My menu description 1',
-        'submenus_count': 0,
-        'dishes_count': 0
+        'title': detail_menu_response.json().get('title'),
+        'description': detail_menu_response.json().get('description'),
+        'submenus_count': detail_menu_response.json().get('submenus_count'),
+        'dishes_count': detail_menu_response.json().get('dishes_count')
     }
 
 
