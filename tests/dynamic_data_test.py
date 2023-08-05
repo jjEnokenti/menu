@@ -1,8 +1,4 @@
 import uuid
-from typing import (
-    Dict,
-    Union,
-)
 
 import pytest
 from httpx import Response
@@ -14,19 +10,19 @@ class TestDynamicData:
     async def test_menu_create(
             self,
             create_menu_response: Response,
-            response_menu_data: Dict[str, Union[str, int, uuid.UUID]]
+            response_menu_data: dict[str, str | int | uuid.UUID]
     ):
         """Test creating a menu for further testing of the dynamic data."""
 
         assert create_menu_response.status_code == 201
         assert isinstance(create_menu_response.json(), dict)
         assert (
-                create_menu_response.headers.get('content-type') ==
-                'application/json'
+            create_menu_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert (
-                create_menu_response.json().get('id') ==
-                response_menu_data.get('id')
+            create_menu_response.json().get(
+                'id') == response_menu_data.get('id')
         )
         assert create_menu_response.json().get('submenus_count') == 0
         assert create_menu_response.json().get('dishes_count') == 0
@@ -34,19 +30,19 @@ class TestDynamicData:
     async def test_submenu_create(
             self,
             create_submenu_response: Response,
-            response_submenu_data: Dict[str, Union[str, int, uuid.UUID]]
+            response_submenu_data: dict[str, str | int | uuid.UUID]
     ):
         """Test creating a submenu for further testing of the dynamic data."""
 
         assert create_submenu_response.status_code == 201
         assert isinstance(create_submenu_response.json(), dict)
         assert (
-                create_submenu_response.headers.get('content-type') ==
-                'application/json'
+            create_submenu_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert (
-                create_submenu_response.json().get('id') ==
-                response_submenu_data.get('id')
+            create_submenu_response.json().get(
+                'id') == response_submenu_data.get('id')
         )
         assert create_submenu_response.json().get('dishes_count') == 0
 
@@ -60,27 +56,27 @@ class TestDynamicData:
     async def test_dish_create_successful(
             self,
             create_dish_response: Response,
-            response_dish_data: Dict[str, Union[str, int, uuid.UUID]]
+            response_dish_data: dict[str, str | int | uuid.UUID]
     ):
         """Test the successful creation of dish."""
 
         assert create_dish_response.status_code == 201
         assert isinstance(create_dish_response.json(), dict)
         assert (
-                create_dish_response.headers.get('content-type') ==
-                'application/json'
+            create_dish_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert (
-                create_dish_response.json().get('id') ==
-                response_dish_data.get('id')
+            create_dish_response.json().get(
+                'id') == response_dish_data.get('id')
         )
         assert (
-                create_dish_response.json().get('title') ==
-                response_dish_data.get('title')
+            create_dish_response.json().get(
+                'title') == response_dish_data.get('title')
         )
         assert (
-                create_dish_response.json().get('description') ==
-                response_dish_data.get('description')
+            create_dish_response.json().get(
+                'description') == response_dish_data.get('description')
         )
 
     async def test_get_detail_menu_with_dynamic_data(
@@ -92,13 +88,13 @@ class TestDynamicData:
 
         assert detail_menu_response.status_code == 200
         assert (
-                detail_menu_response.headers.get('content-type') ==
-                'application/json'
+            detail_menu_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert isinstance(detail_menu_response.json(), dict)
         assert (
-                detail_menu_response.json().get('id') ==
-                get_menu_id
+            detail_menu_response.json().get(
+                'id') == get_menu_id
         )
         assert detail_menu_response.json().get('submenus_count') == 1
         assert detail_menu_response.json().get('dishes_count') == 2
@@ -112,13 +108,13 @@ class TestDynamicData:
 
         assert detail_submenu_response.status_code == 200
         assert (
-                detail_submenu_response.headers.get('content-type') ==
-                'application/json'
+            detail_submenu_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert isinstance(detail_submenu_response.json(), dict)
         assert (
-                detail_submenu_response.json().get('id') ==
-                get_submenu_id
+            detail_submenu_response.json().get(
+                'id') == get_submenu_id
         )
         assert detail_submenu_response.json().get('dishes_count') == 2
 
@@ -130,8 +126,8 @@ class TestDynamicData:
 
         assert delete_submenu_response.status_code == 200
         assert (
-                delete_submenu_response.headers.get('content-type') ==
-                'application/json'
+            delete_submenu_response.headers.get(
+                'content-type') == 'application/json'
         )
 
     async def test_get_submenu_empty_list_after_delete(
@@ -141,8 +137,8 @@ class TestDynamicData:
         """Test for getting an empty list of submenus after deletion for dynamic data tests."""
 
         assert (
-                submenus_list_response.headers.get('content-type') ==
-                'application/json'
+            submenus_list_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert submenus_list_response.status_code == 200
         assert submenus_list_response.json() == []
@@ -154,8 +150,8 @@ class TestDynamicData:
         """Test for getting an empty list of dishes after delete submenu."""
 
         assert (
-                dish_list_response.headers.get('content-type') ==
-                'application/json'
+            dish_list_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert dish_list_response.status_code == 200
         assert dish_list_response.json() == []
@@ -163,19 +159,19 @@ class TestDynamicData:
     async def test_get_menu_detail_for_check_dynamic_data(
             self,
             detail_menu_response: Response,
-            response_menu_data: Dict[str, Union[str, int, uuid.UUID]]
+            response_menu_data: dict[str, str | int | uuid.UUID]
     ):
         """Test for getting a detail of menu for check dynamic data."""
 
         assert detail_menu_response.status_code == 200
         assert (
-                detail_menu_response.headers.get('content-type') ==
-                'application/json'
+            detail_menu_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert isinstance(detail_menu_response.json(), dict)
         assert (
-                detail_menu_response.json().get('id') ==
-                response_menu_data.get('id')
+            detail_menu_response.json().get(
+                'id') == response_menu_data.get('id')
         )
         assert detail_menu_response.json().get('submenus_count') == 0
         assert detail_menu_response.json().get('dishes_count') == 0
@@ -188,8 +184,8 @@ class TestDynamicData:
 
         assert delete_menu_response.status_code == 200
         assert (
-                delete_menu_response.headers.get('content-type') ==
-                'application/json'
+            delete_menu_response.headers.get(
+                'content-type') == 'application/json'
         )
 
     async def test_get_menu_empty_list_after_deletion_for_dynamic_data_tests(
@@ -199,8 +195,8 @@ class TestDynamicData:
         """Test to check of menu after deletion for dynamic datatests."""
 
         assert (
-                menus_list_response.headers.get('content-type') ==
-                'application/json'
+            menus_list_response.headers.get(
+                'content-type') == 'application/json'
         )
         assert menus_list_response.status_code == 200
         assert menus_list_response.json() == []
