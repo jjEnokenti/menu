@@ -2,16 +2,12 @@ import asyncio
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from src.app import app
 from src.config import settings
 from src.db.core import get_db
 from src.db.models import Base
-
 
 pytest_plugins = (
     'tests.fixtures.menu_fixtures,'
