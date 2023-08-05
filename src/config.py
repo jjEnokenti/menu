@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
-
 __all__ = (
     'settings',
 )
@@ -19,10 +18,16 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_PORT: int
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_CACHE_EXPIRE: int
+
     @property
     def DATABASE_URL(self) -> str:
+        """Return db url."""
         return (f'postgresql+asyncpg://'
-                f'{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}')
+                f'{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}')
 
     class ConfigDict:
         env_files = '.env'
