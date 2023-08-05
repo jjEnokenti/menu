@@ -1,11 +1,7 @@
 from fastapi import Request
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from src.config import settings
-
 
 __all__ = (
     'engine',
