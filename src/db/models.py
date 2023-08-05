@@ -1,24 +1,12 @@
 import uuid
-from typing import (
-    List,
-    Optional,
-)
 
-from sqlalchemy import (
-    DECIMAL,
-    ForeignKey,
-    String,
-)
+from sqlalchemy import DECIMAL, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import (
-    DeclarativeBase,
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
+    """Base model."""
     pass
 
 
@@ -32,9 +20,9 @@ class Menu(Base):
     title: Mapped[str] = mapped_column(
         String(155), unique=True, nullable=False
     )
-    description: Mapped[Optional[String]] = mapped_column(String(500))
+    description: Mapped[String | None] = mapped_column(String(500))
 
-    submenus: Mapped[List['Submenu']] = relationship(
+    submenus: Mapped[list['Submenu']] = relationship(
         back_populates='menu', cascade='all, delete-orphan'
     )
 
@@ -52,11 +40,11 @@ class Submenu(Base):
     title: Mapped[str] = mapped_column(
         String(155), unique=True, nullable=False
     )
-    description: Mapped[Optional[str]] = mapped_column(String(500))
+    description: Mapped[str | None] = mapped_column(String(500))
     menu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('menus.id'))
 
     menu: Mapped['Menu'] = relationship(back_populates='submenus')
-    dishes: Mapped[List['Dish']] = relationship(
+    dishes: Mapped[list['Dish']] = relationship(
         back_populates='submenu', cascade='all, delete-orphan'
     )
 
@@ -74,7 +62,7 @@ class Dish(Base):
     title: Mapped[str] = mapped_column(
         String(155), unique=True, nullable=False
     )
-    description: Mapped[Optional[str]] = mapped_column(String(500))
+    description: Mapped[str | None] = mapped_column(String(500))
     price: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2))
     submenu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('submenus.id'))
 
