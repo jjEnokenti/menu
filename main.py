@@ -1,8 +1,5 @@
 import uvicorn
-from fastapi import (
-    Request,
-    Response,
-)
+from fastapi import Request, Response
 
 from src.app import app
 from src.db.core import session
