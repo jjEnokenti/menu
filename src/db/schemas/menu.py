@@ -1,22 +1,18 @@
 import uuid
-from typing import Optional
 
-from pydantic import (
-    BaseModel,
-    Field,
-)
+from pydantic import BaseModel, Field
 
 
 class MenuCreate(BaseModel):
     """Create menu schema."""
     title: str = Field(min_length=3)
-    description: str
+    description: str | None = None
 
 
 class MenuUpdate(BaseModel):
     """Update menu schema."""
-    title: Optional[str] = Field(min_length=3)
-    description: Optional[str]
+    title: str | None = Field(min_length=3, default=None)
+    description: str | None = None
 
 
 class MenuResponse(BaseModel):
