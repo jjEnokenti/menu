@@ -1,15 +1,8 @@
 import uuid
-from typing import (
-    Dict,
-    Union,
-)
 
 import pytest
 from fastapi import FastAPI
-from httpx import (
-    AsyncClient,
-    Response,
-)
+from httpx import AsyncClient, Response
 from pytest_asyncio.plugin import SubRequest
 
 
@@ -98,7 +91,7 @@ async def update_dish_response(
         get_menu_id: uuid.UUID,
         get_submenu_id: uuid.UUID,
         get_dish_id: uuid.UUID,
-        update_dish_data: Dict[str, str]
+        update_dish_data: dict[str, str]
 ) -> Response:
     """Request to update the detail of dish."""
 
@@ -161,20 +154,21 @@ async def non_existent_dish_response(
 @pytest.fixture
 def response_dish_data(
         get_dish_id: uuid.UUID,
-        dish_list_response: Response,
-) -> Dict[str, Union[str, int, uuid.UUID]]:
+        detail_dish_response: Response,
+) -> dict[str, str | int | uuid.UUID]:
     """Response data of dish."""
+    price = detail_dish_response.json().get('price')
 
     return {
         'id': get_dish_id,
-        'title': dish_list_response.json()[-1].get('title'),
-        'description': dish_list_response.json()[-1].get('description'),
-        'price': dish_list_response.json()[-1].get('price')
+        'title': detail_dish_response.json().get('title'),
+        'description': detail_dish_response.json().get('description'),
+        'price': price
     }
 
 
 @pytest.fixture
-def create_dish_data() -> Dict[str, str]:
+def create_dish_data() -> dict[str, str]:
     """Data for create of dish."""
 
     return {
@@ -185,7 +179,7 @@ def create_dish_data() -> Dict[str, str]:
 
 
 @pytest.fixture
-def create_dish_data_second() -> Dict[str, str]:
+def create_dish_data_second() -> dict[str, str]:
     """Data for create of second dish."""
 
     return {
@@ -196,7 +190,7 @@ def create_dish_data_second() -> Dict[str, str]:
 
 
 @pytest.fixture
-def update_dish_data() -> Dict[str, str]:
+def update_dish_data() -> dict[str, str]:
     """Data for update of dish."""
 
     return {
