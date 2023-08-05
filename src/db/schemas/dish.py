@@ -1,25 +1,21 @@
 import decimal
 import uuid
-from typing import Optional
 
-from pydantic import (
-    BaseModel,
-    Field,
-)
+from pydantic import BaseModel, Field
 
 
 class DishCreate(BaseModel):
     """Create dish schema."""
     title: str = Field(min_length=3)
-    description: str
+    description: str | None = None
     price: decimal.Decimal = Field(ge=0)
 
 
 class DishUpdate(BaseModel):
     """Update dish schema."""
-    title: Optional[str] = Field(min_length=3)
-    description: Optional[str]
-    price: Optional[decimal.Decimal] = Field(ge=0)
+    title: str | None = Field(min_length=3, default=None)
+    description: str | None = None
+    price: decimal.Decimal | None = Field(ge=0, default=None)
 
 
 class DishResponse(BaseModel):

@@ -1,22 +1,18 @@
 import uuid
-from typing import Optional
 
-from pydantic import (
-    BaseModel,
-    Field,
-)
+from pydantic import BaseModel, Field
 
 
 class SubmenuCreate(BaseModel):
     """Create submenu schema."""
     title: str = Field(min_length=3)
-    description: str
+    description: str | None = None
 
 
 class SubmenuUpdate(BaseModel):
     """Update submenu schema."""
-    title: Optional[str] = Field(min_length=3)
-    description: Optional[str]
+    title: str | None = Field(min_length=3, default=None)
+    description: str | None = None
 
 
 class SubmenuResponse(BaseModel):
