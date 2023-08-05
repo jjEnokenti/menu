@@ -1,14 +1,6 @@
-from fastapi import (
-    APIRouter,
-    FastAPI,
-)
+from fastapi import APIRouter, FastAPI
 
-from src.endpoints import (
-    dish_route,
-    menu_route,
-    submenu_route,
-)
-
+from src.endpoints import dish_route, menu_route, submenu_route
 
 __all__ = (
     'app',
