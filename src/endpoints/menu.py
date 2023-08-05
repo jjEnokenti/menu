@@ -1,23 +1,10 @@
 import uuid
-from typing import List
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    status,
-)
+from fastapi import APIRouter, Depends, status
 
 from src.db.schemas import Status
-from src.db.schemas.menu import (
-    MenuCreate,
-    MenuResponse,
-    MenuUpdate,
-)
-from src.services.menu import (
-    MenuService,
-    get_menu_service,
-)
-
+from src.db.schemas.menu import MenuCreate, MenuResponse, MenuUpdate
+from src.services.menu import MenuService, get_menu_service
 
 menu_route = APIRouter()
 
@@ -25,7 +12,7 @@ menu_route = APIRouter()
 @menu_route.get('/menus',
                 summary='Get list',
                 description='Get list of menus',
-                response_model=List[MenuResponse],
+                response_model=list[MenuResponse],
                 status_code=status.HTTP_200_OK)
 async def get_list_menu(menu_service: MenuService = Depends(get_menu_service)):
     return await menu_service.get_list()
