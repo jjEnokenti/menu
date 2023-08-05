@@ -1,42 +1,30 @@
 import uuid
-from typing import (
-    Optional,
-    Sequence,
-)
+from typing import Sequence
 
 from fastapi import Depends
-from sqlalchemy import (
-    Row,
-    Select,
-    distinct,
-    func,
-    select,
-)
+from sqlalchemy import Row, Select, distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import models
 from src.db.core import get_db
-from src.db.crud.abstract_crud import AbstractCRUD
-from src.db.schemas.menu import (
-    MenuCreate,
-    MenuUpdate,
-)
-
+from src.db.schemas.menu import MenuCreate, MenuUpdate
+from src.repositories.abstract_repository import AbstractRepository
 
 __all__ = (
-    'MenuCRUD',
-    'get_menu_crud',
+    'MenuRepository',
+    'get_menu_repo',
 )
 
 
-class MenuCRUD(AbstractCRUD):
+class MenuRepository(AbstractRepository):
     """Database layer."""
 
     def __init__(self, session: AsyncSession):
         self.session = session
 
     def get_statement(self) -> Select:
-        """Get statement for execute from DB."""
+        """Get query for execute from DB."""
+
         return select(
             self.menu_model.id,
             self.menu_model.title,
@@ -55,7 +43,7 @@ class MenuCRUD(AbstractCRUD):
             self.menu_model.id
         )
 
-    async def _get_from_db(self, menu_id: uuid.UUID) -> Optional[models.Menu]:
+    async def _get_from_db(self, menu_id: uuid.UUID) -> models.Menu | None:
         """Get menu for delete/update from DB."""
         stmt = select(
             self.menu_model
@@ -67,7 +55,7 @@ class MenuCRUD(AbstractCRUD):
 
         return result.scalar_one_or_none()
 
-    async def get_detail(self, menu_id: uuid.UUID) -> Optional[models.Menu]:
+    async def get_detail(self, menu_id: uuid.UUID) -> models.Menu | None:
         """Get detail of menu from DB."""
         stmt = self.get_statement().where(self.menu_model.id == menu_id)
 
@@ -75,7 +63,7 @@ class MenuCRUD(AbstractCRUD):
             statement=stmt
         )
 
-        return result.one_or_none()
+        return result.first()
 
     async def get_list(self) -> Sequence[Row]:
         """Get list of menu from DB."""
@@ -95,9 +83,11 @@ class MenuCRUD(AbstractCRUD):
 
         return new_menu
 
-    async def update(self,
-                     menu_id: uuid.UUID,
-                     data: MenuUpdate) -> Optional[models.Menu]:
+    async def update(
+            self,
+            menu_id: uuid.UUID,
+            data: MenuUpdate
+    ) -> models.Menu | None:
         """Update exist menu."""
         menu = await self._get_from_db(menu_id)
 
@@ -109,7 +99,7 @@ class MenuCRUD(AbstractCRUD):
 
         return menu
 
-    async def delete(self, menu_id: uuid.UUID) -> bool:
+    async def delete(self, menu_id: uuid.UUID) -> models.Menu | None:
         """Delete exist menu."""
         menu = await self._get_from_db(menu_id)
 
@@ -117,13 +107,11 @@ class MenuCRUD(AbstractCRUD):
             await self.session.delete(menu)
             await self.session.commit()
 
-            return True
-
-        return False
+        return menu
 
 
-async def get_menu_crud(
+async def get_menu_repo(
         session: AsyncSession = Depends(get_db)
-) -> MenuCRUD:
-    """Instance of MenuCRUD."""
-    return MenuCRUD(session=session)
+) -> MenuRepository:
+    """Instance of MenuRepository."""
+    return MenuRepository(session=session)

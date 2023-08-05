@@ -1,33 +1,22 @@
 import uuid
-from typing import (
-    Optional,
-    Sequence,
-)
+from typing import Sequence
 
 from fastapi import Depends
-from sqlalchemy import (
-    Row,
-    Select,
-    select,
-)
+from sqlalchemy import Row, Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import models
 from src.db.core import get_db
-from src.db.crud.abstract_crud import AbstractCRUD
-from src.db.schemas.dish import (
-    DishCreate,
-    DishUpdate,
-)
-
+from src.db.schemas.dish import DishCreate, DishUpdate
+from src.repositories.abstract_repository import AbstractRepository
 
 __all__ = (
-    'DishCRUD',
-    'get_dish_crud',
+    'DishRepository',
+    'get_dish_repo',
 )
 
 
-class DishCRUD(AbstractCRUD):
+class DishRepository(AbstractRepository):
     """Database layer."""
 
     def __init__(self, session: AsyncSession):
@@ -43,11 +32,9 @@ class DishCRUD(AbstractCRUD):
             self.dish_model.price,
         )
 
-    async def _get_from_db(self, dish_id: uuid.UUID) -> Optional[models.Dish]:
+    async def _get_from_db(self, dish_id: uuid.UUID) -> models.Dish | None:
         """Get dish for delete/update from DB."""
-        stmt = select(
-            self.dish_model
-        ).where(self.dish_model.id == dish_id)
+        stmt = select(self.dish_model).where(self.dish_model.id == dish_id)
 
         result = await self.session.execute(
             statement=stmt
@@ -55,7 +42,7 @@ class DishCRUD(AbstractCRUD):
 
         return result.scalar_one_or_none()
 
-    async def get_detail(self, dish_id: uuid.UUID) -> Optional[models.Dish]:
+    async def get_detail(self, dish_id: uuid.UUID) -> models.Dish | None:
         """Get detail of dish from DB."""
         stmt = self.get_statement().where(
             self.dish_model.id == dish_id)
@@ -64,7 +51,7 @@ class DishCRUD(AbstractCRUD):
             statement=stmt
         )
 
-        return result.one_or_none()
+        return result.first()
 
     async def get_list(self, submenu_id: uuid.UUID) -> Sequence[Row]:
         """Get list of dishes from DB."""
@@ -77,9 +64,11 @@ class DishCRUD(AbstractCRUD):
 
         return result.all()
 
-    async def create(self,
-                     submenu_id: uuid.UUID,
-                     data: DishCreate) -> models.Dish:
+    async def create(
+            self,
+            submenu_id: uuid.UUID,
+            data: DishCreate
+    ) -> models.Dish:
         """Create new dish."""
         new_dish = self.dish_model(
             **data.model_dump(exclude_unset=True),
@@ -90,9 +79,11 @@ class DishCRUD(AbstractCRUD):
 
         return new_dish
 
-    async def update(self,
-                     dish_id: uuid.UUID,
-                     data: DishUpdate) -> Optional[models.Dish]:
+    async def update(
+            self,
+            dish_id: uuid.UUID,
+            data: DishUpdate
+    ) -> models.Dish | None:
         """Update exist dish."""
         dish = await self._get_from_db(dish_id)
 
@@ -104,7 +95,7 @@ class DishCRUD(AbstractCRUD):
 
         return dish
 
-    async def delete(self, dish_id: uuid.UUID) -> bool:
+    async def delete(self, dish_id: uuid.UUID) -> models.Dish | None:
         """Delete exist dish."""
         dish = await self._get_from_db(dish_id)
 
@@ -112,13 +103,11 @@ class DishCRUD(AbstractCRUD):
             await self.session.delete(dish)
             await self.session.commit()
 
-            return True
-
-        return False
+        return dish
 
 
-async def get_dish_crud(
+async def get_dish_repo(
         session: AsyncSession = Depends(get_db)
-) -> DishCRUD:
-    """Instance of DishCRUD."""
-    return DishCRUD(session=session)
+) -> DishRepository:
+    """Instance of DishRepository."""
+    return DishRepository(session=session)
