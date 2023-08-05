@@ -1,15 +1,8 @@
 import uuid
-from typing import (
-    Dict,
-    Union,
-)
 
 import pytest
 from fastapi import FastAPI
-from httpx import (
-    AsyncClient,
-    Response,
-)
+from httpx import AsyncClient, Response
 
 
 @pytest.fixture
@@ -40,7 +33,7 @@ async def get_menu_id(menus_list_response: Response) -> uuid.UUID:
 async def create_menu_response(
         get_app: FastAPI,
         client: AsyncClient,
-        create_menu_data: Dict[str, str]
+        create_menu_data: dict[str, str]
 ) -> Response:
     """Request to create a menu."""
 
@@ -73,7 +66,7 @@ async def update_menu_response(
         client: AsyncClient,
         get_menu_id: uuid.UUID,
         get_app: FastAPI,
-        update_menu_data: Dict[str, str]
+        update_menu_data: dict[str, str]
 ) -> Response:
     """Request to update the detail of menu."""
 
@@ -121,7 +114,7 @@ async def non_existent_menu_response(
 def response_menu_data(
         get_menu_id: uuid.UUID,
         detail_menu_response: Response
-) -> Dict[str, Union[str, int, uuid.UUID]]:
+) -> dict[str, str | int | uuid.UUID]:
     """Response data of menu."""
 
     return {
@@ -134,7 +127,7 @@ def response_menu_data(
 
 
 @pytest.fixture
-def create_menu_data() -> Dict[str, str]:
+def create_menu_data() -> dict[str, str]:
     """Data for create of menu."""
 
     return {
@@ -144,7 +137,7 @@ def create_menu_data() -> Dict[str, str]:
 
 
 @pytest.fixture
-def update_menu_data() -> Dict[str, str]:
+def update_menu_data() -> dict[str, str]:
     """Data for update of menu."""
 
     return {
