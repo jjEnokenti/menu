@@ -1,17 +1,16 @@
-from abc import (
-    ABC,
-    abstractmethod,
-)
-from typing import Type
+from abc import ABC, abstractmethod
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import models
 
 
-class AbstractCRUD(ABC):
+class AbstractRepository(ABC):
     """Abstract class for CRUD."""
-    menu_model: Type[models.Menu] = models.Menu
-    submenu_model: Type[models.Submenu] = models.Submenu
-    dish_model: Type[models.Dish] = models.Dish
+    menu_model: type[models.Menu] = models.Menu
+    submenu_model: type[models.Submenu] = models.Submenu
+    dish_model: type[models.Dish] = models.Dish
+    session: AsyncSession
 
     @abstractmethod
     async def get_detail(self, *args, **kwargs):

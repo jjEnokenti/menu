@@ -1,34 +1,22 @@
 import uuid
-from typing import (
-    Optional,
-    Sequence,
-)
+from typing import Sequence
 
 from fastapi import Depends
-from sqlalchemy import (
-    Row,
-    Select,
-    func,
-    select,
-)
+from sqlalchemy import Row, Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import models
 from src.db.core import get_db
-from src.db.crud.abstract_crud import AbstractCRUD
-from src.db.schemas.submenu import (
-    SubmenuCreate,
-    SubmenuUpdate,
-)
-
+from src.db.schemas.submenu import SubmenuCreate, SubmenuUpdate
+from src.repositories.abstract_repository import AbstractRepository
 
 __all__ = (
-    'SubmenuCRUD',
-    'get_submenu_crud',
+    'SubmenuRepository',
+    'get_submenu_repo',
 )
 
 
-class SubmenuCRUD(AbstractCRUD):
+class SubmenuRepository(AbstractRepository):
     """Database layer."""
 
     def __init__(self, session: AsyncSession):
@@ -50,7 +38,7 @@ class SubmenuCRUD(AbstractCRUD):
             self.submenu_model.id
         )
 
-    async def _get_from_db(self, submenu_id: uuid.UUID) -> Optional[models.Submenu]:
+    async def _get_from_db(self, submenu_id: uuid.UUID) -> models.Submenu | None:
         """Get submenu for delete/update from DB."""
         stmt = select(
             self.submenu_model
@@ -62,7 +50,7 @@ class SubmenuCRUD(AbstractCRUD):
 
         return result.scalar_one_or_none()
 
-    async def get_detail(self, submenu_id: uuid.UUID) -> Optional[models.Submenu]:
+    async def get_detail(self, submenu_id: uuid.UUID) -> models.Submenu | None:
         """Get detail of submenu from DB."""
         stmt = self.get_statement().where(self.submenu_model.id == submenu_id)
 
@@ -70,7 +58,7 @@ class SubmenuCRUD(AbstractCRUD):
             statement=stmt
         )
 
-        return result.one_or_none()
+        return result.first()
 
     async def get_list(self, menu_id: uuid.UUID) -> Sequence[Row]:
         """Get list of submenu from DB."""
@@ -95,9 +83,11 @@ class SubmenuCRUD(AbstractCRUD):
 
         return new_submenu
 
-    async def update(self,
-                     submenu_id: uuid.UUID,
-                     data: SubmenuUpdate) -> Optional[models.Submenu]:
+    async def update(
+            self,
+            submenu_id: uuid.UUID,
+            data: SubmenuUpdate
+    ) -> models.Submenu | None:
         """Update exist submenu."""
         submenu = await self._get_from_db(submenu_id)
 
@@ -109,7 +99,7 @@ class SubmenuCRUD(AbstractCRUD):
 
         return submenu
 
-    async def delete(self, submenu_id: uuid.UUID) -> bool:
+    async def delete(self, submenu_id: uuid.UUID) -> models.Submenu | None:
         """Delete exist menu."""
         submenu = await self._get_from_db(submenu_id)
 
@@ -117,13 +107,11 @@ class SubmenuCRUD(AbstractCRUD):
             await self.session.delete(submenu)
             await self.session.commit()
 
-            return True
-
-        return False
+        return submenu
 
 
-async def get_submenu_crud(
+async def get_submenu_repo(
         session: AsyncSession = Depends(get_db)
-) -> SubmenuCRUD:
-    """Instance of SubmenuCRUD."""
-    return SubmenuCRUD(session=session)
+) -> SubmenuRepository:
+    """Instance of SubmenuRepository."""
+    return SubmenuRepository(session=session)
