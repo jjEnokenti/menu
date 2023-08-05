@@ -18,6 +18,20 @@ services:
       timeout: 5s
       retries: 5
 
+  test_cache:
+    container_name: test_redis_cache
+    image: redis
+    restart: always
+    networks:
+      - test_network
+    ports:
+      - "63799:6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   test_api:
     container_name: test_api
     build:
@@ -30,6 +44,8 @@ services:
     command: bash -c "pytest -vs"
     depends_on:
       test_db:
+        condition: service_healthy
+      test_cache:
         condition: service_healthy
 
 networks:
