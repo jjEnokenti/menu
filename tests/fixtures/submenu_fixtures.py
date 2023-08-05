@@ -1,15 +1,8 @@
 import uuid
-from typing import (
-    Dict,
-    Union,
-)
 
 import pytest
 from fastapi import FastAPI
-from httpx import (
-    AsyncClient,
-    Response,
-)
+from httpx import AsyncClient, Response
 
 
 @pytest.fixture
@@ -42,7 +35,7 @@ async def create_submenu_response(
         get_app: FastAPI,
         client: AsyncClient,
         get_menu_id: uuid.UUID,
-        create_submenu_data: Dict[str, str]
+        create_submenu_data: dict[str, str]
 ) -> Response:
     """Request to create a submenu."""
 
@@ -81,7 +74,7 @@ async def update_submenu_response(
         get_app: FastAPI,
         get_menu_id: uuid.UUID,
         get_submenu_id: uuid.UUID,
-        update_submenu_data: Dict[str, str]
+        update_submenu_data: dict[str, str]
 ) -> Response:
     """Request to update the detail of submenu."""
 
@@ -140,21 +133,21 @@ async def non_existent_submenu_response(
 def response_submenu_data(
         get_submenu_id: uuid.UUID,
         get_menu_id: uuid.UUID,
-        submenus_list_response: Response
-) -> Dict[str, Union[str, int, uuid.UUID]]:
+        detail_submenu_response: Response
+) -> dict[str, str | int | uuid.UUID]:
     """Response data of submenu."""
 
     return {
         'id': get_submenu_id,
-        'title': submenus_list_response.json()[-1].get('title'),
-        'description': submenus_list_response.json()[-1].get('description'),
+        'title': detail_submenu_response.json().get('title'),
+        'description': detail_submenu_response.json().get('description'),
         'menu_id': get_menu_id,
-        'dishes_count': submenus_list_response.json()[-1].get('dishes_count')
+        'dishes_count': detail_submenu_response.json().get('dishes_count')
     }
 
 
 @pytest.fixture
-def create_submenu_data() -> Dict[str, str]:
+def create_submenu_data() -> dict[str, str]:
     """Data for create of submenu."""
 
     return {
@@ -164,7 +157,7 @@ def create_submenu_data() -> Dict[str, str]:
 
 
 @pytest.fixture
-def update_submenu_data() -> Dict[str, str]:
+def update_submenu_data() -> dict[str, str]:
     """Data for update of submenu."""
 
     return {
