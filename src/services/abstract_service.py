@@ -44,6 +44,7 @@ class AbstractService(ABC):
         pass
 
     async def get_obj_from_cache(self, key: str):
+        """Get object from cache method."""
         try:
             obj = await self.cache.get(self.detail_menu.format(key))
         except Exception:
@@ -52,12 +53,14 @@ class AbstractService(ABC):
         return obj
 
     async def set_value_into_cache(self, key, value):
+        """Set object into cache method."""
         try:
             await self.cache.set(key, value)
         except Exception:
             pass
 
     async def cache_invalidate(self, *args, **kwargs):
+        """Delete objects from cache method."""
         try:
             await self.cache.delete(args, **kwargs)
         except Exception:
