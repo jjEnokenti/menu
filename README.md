@@ -14,7 +14,7 @@
 <img src="https://img.shields.io/badge/Docker-compose-blue?logo=appveyor" alt="">
 <img src="https://img.shields.io/badge/Uvicorn-0.23.0-green?logo=appveyor" alt="">
 <img src="https://img.shields.io/badge/alembic-1.11.1-green?logo=appveyor" alt="">
-<img src="https://img.shields.io/badge/pydantic-2.0.3-green?logo=appveyor" alt="">
+<img src="https://img.shields.io/badge/Aioredis-2.0.1-red?logo=appveyor" alt="">
 </p>
 
 ---
@@ -36,16 +36,23 @@
 
 ### 3. Можете запускать приложение
     make up
-### 4. Для остановки контейнеров
+### 4. Посмотреть логи
+    make show-logs
+### 5. Для остановки контейнеров
     make down
 
 ---
 
 <h3 align="center">Инструкция по запуску тестов</h3>
 
+### 1. Настройте окружение для тестов
+#### 1. Дополните .test.env, впишите ваши имя пользователя бд, пароль и имя базы
+
 ### 1. Команда для сборки контейнеров с тестами и их запуска
-    make starttest
-### 2. Для остановки тестовых контейнеров
-    make droptest
+    make start-test
+### 2. Команда для просмотра результата тестов
+    make show-result
+### 3. Для остановки тестовых контейнеров
+    make drop-test
 
 ---
