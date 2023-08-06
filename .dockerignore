@@ -1,14 +1,16 @@
+**/__pycache__
+**/.mypy_cache
+**/.pytest_cache
 postgres-data
-__pycache__
-.git
-.pytest_cache
 .idea
+.git
 
-.gitignore
-.env.example
-.pre-commit-config.yaml
 Dockerfile
-Makefile
-README.md
+*.md
 requirements.txt
+.env.example
 setup.cfg
+Makefile
+.pylintrc
+.pre-commit-config.yaml
+.gitignore
