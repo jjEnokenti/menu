@@ -26,6 +26,16 @@ class Menu(Base):
         back_populates='menu', cascade='all, delete-orphan'
     )
 
+    def as_dict(self):
+        """Model to dict convert method."""
+
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'submenus': [submenu.as_dict() for submenu in self.submenus],
+        }
+
     def __repr__(self):
         return f'Menu(id={self.id}, title={self.title})'
 
@@ -48,6 +58,16 @@ class Submenu(Base):
         back_populates='submenu', cascade='all, delete-orphan'
     )
 
+    def as_dict(self):
+        """Model to dict convert method."""
+
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'dishes': [dish.as_dict() for dish in self.dishes],
+        }
+
     def __repr__(self):
         return f'Submenu(id={self.id}, title={self.title}, menu={self.menu_id})'
 
@@ -67,6 +87,16 @@ class Dish(Base):
     submenu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('submenus.id'))
 
     submenu: Mapped['Submenu'] = relationship(back_populates='dishes')
+
+    def as_dict(self):
+        """Model to dict convert method."""
+
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'price': self.price,
+        }
 
     def __repr__(self):
         return (f'Dish('
