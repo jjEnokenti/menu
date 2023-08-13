@@ -1,44 +1,65 @@
-import pickle
-from typing import Sequence
+from abc import ABC, abstractmethod
 
 from aioredis import Redis
-from fastapi import Depends
-from sqlalchemy import Row
 
-from src.cache.abstract_cache import AbstractCache
-from src.cache.core import get_redis_cache
+from src.cache.core import get_redis_instance
 from src.config import settings
 
+__all__ = (
+    'AbstractCache',
+    'RedisCache',
+)
 
-class Cache(AbstractCache):
+
+class AbstractCache(ABC):
+
+    @abstractmethod
+    async def get(self, *args, **kwargs) -> bytes | None:
+        """Abstract get data by key method require for implementation."""
+        pass
+
+    @abstractmethod
+    async def set(self, *args, **kwargs) -> None:
+        """Abstract set data method require for implementation."""
+        pass
+
+    @abstractmethod
+    async def delete(self, *args, **kwargs) -> None:
+        """Abstract remove data by keys method require for implementation."""
+        pass
+
+    @abstractmethod
+    async def flush_all(self) -> None:
+        """Abstract remove all data method require for implementation."""
+        pass
+
+
+class RedisCache(AbstractCache):
+    """Redis repository,"""
 
     def __init__(self, cache: Redis):
         self.cache = cache
 
-    async def get(self, key: str) -> list | dict | None:
+    async def get_keys_by_pattern(self, pattern: str) -> list[str]:
+        """Get keys from cache by pattern."""
+        return await self.cache.keys(pattern)
+
+    async def get(self, key: str) -> bytes | None:
         """Get data from cache by key."""
-        value = await self.cache.get(key)
+        return await self.cache.get(key)
 
-        return pickle.loads(value) if value else None
-
-    async def set(self, key: str, value: Sequence[Row] | Row, ex: int = 30) -> None:
+    async def set(self, key: str, value: bytes, ex: int = 30) -> None:
         """Set data into cache."""
         await self.cache.set(
             name=key,
-            value=pickle.dumps(value),
+            value=value,
             ex=settings.REDIS_CACHE_EXPIRE or ex,
         )
 
-    async def delete(self, keys: list[str], invalid_key: str | None = None) -> None:
+    async def delete(self, keys: list[str]) -> None:
         """Remove data from cache by keys."""
 
-        keys = list(map(str, keys))
-
-        if invalid_key:
-            cache_keys = await self.cache.keys(pattern=rf'*{str(invalid_key)}*')
-            keys.extend(cache_keys)
-
-        await self.cache.delete(*keys)
+        await self.cache.unlink(*keys)
 
     async def flush_all(self) -> None:
         """Remove all data from cache."""
@@ -46,8 +67,5 @@ class Cache(AbstractCache):
         await self.cache.flushall()
 
 
-async def get_cache(
-        cache: Redis = Depends(get_redis_cache)
-) -> Cache:
-    """Get cache"""
-    return Cache(cache=cache)
+async def get_redis():
+    return RedisCache(await get_redis_instance())
