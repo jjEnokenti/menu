@@ -8,6 +8,7 @@ from src.config import settings
 __all__ = (
     'AbstractCache',
     'RedisCache',
+    'get_redis',
 )
 
 
