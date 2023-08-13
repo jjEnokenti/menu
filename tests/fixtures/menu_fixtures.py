@@ -6,6 +6,19 @@ from httpx import AsyncClient, Response
 
 
 @pytest.fixture
+async def all_data_response(
+        get_app: FastAPI,
+        client: AsyncClient
+) -> Response:
+    """Request to return the list of menus."""
+
+    url = get_app.url_path_for('get_all_detail_data')
+    data = await client.get(url, follow_redirects=True)
+
+    return data
+
+
+@pytest.fixture
 async def menus_list_response(
         get_app: FastAPI,
         client: AsyncClient
@@ -108,6 +121,30 @@ async def non_existent_menu_response(
     menu = await client.get(url, follow_redirects=True)
 
     return menu
+
+
+@pytest.fixture
+def response_all_data(
+        all_data_response: Response,
+) -> list:
+    """Response data of menu."""
+
+    return [{
+        'id': menu.get('id'),
+        'title': menu.get('title'),
+        'description': menu.get('description'),
+        'submenus': [{
+            'id': submenu.get('id'),
+            'title': submenu.get('title'),
+            'description': submenu.get('description'),
+            'dishes': [{
+                'id': dish.get('id'),
+                'title': dish.get('title'),
+                'description': dish.get('description'),
+                'price': dish.get('price'),
+            } for dish in submenu['dishes']]
+        } for submenu in menu['submenus']]
+    } for menu in all_data_response.json()]
 
 
 @pytest.fixture
