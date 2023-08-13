@@ -10,11 +10,12 @@ from src.db.core import session as async_session
 
 async def run_synchronize():
     """Run synchronization."""
+
     session = async_session
     cache = await get_cache()
-    parser = Parser(settings.ADMIN_FILE_PATH)
+    parse_data = Parser(mode=settings.FILE_READ_MODE).get_data
 
-    synchronizer = Synchronizer(session=session, excel_data=parser.parse_obj(), cache=cache)
+    synchronizer = Synchronizer(session=session, excel_data=parse_data, cache=cache)
 
     await synchronizer.setup()
 
