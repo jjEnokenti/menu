@@ -18,6 +18,19 @@ class TestMenuAPI:
         assert menus_list_response.status_code == 200
         assert menus_list_response.json() == []
 
+    async def test_all_data_empty(
+            self,
+            all_data_response: Response
+    ):
+        """Test for getting an empty list of data."""
+
+        assert all_data_response.status_code == 200
+        assert (
+            all_data_response.headers.get(
+                'content-type') == 'application/json'
+        )
+        assert all_data_response.json() == []
+
     async def test_menu_create_successful(
             self,
             create_menu_response: Response,
@@ -46,7 +59,7 @@ class TestMenuAPI:
         )
         assert create_menu_response.json() == response_menu_data
 
-    async def test_get_menu_list_not_empty(
+    async def test_get_menu_list_after_create_menu(
             self,
             menus_list_response: Response,
             response_menu_data: dict[str, str | int | uuid.UUID]
@@ -57,6 +70,25 @@ class TestMenuAPI:
         assert len(menus_list_response.json()) == 1
         assert isinstance(menus_list_response.json(), list)
         assert menus_list_response.json() == [response_menu_data]
+
+    async def test_get_all_data_after_create_menu(
+            self,
+            all_data_response: Response,
+            response_all_data: dict[str, str | int | uuid.UUID],
+            create_menu_data: dict[str, str | int | uuid.UUID],
+    ):
+        """Test for getting all data after creation."""
+
+        assert all_data_response.status_code == 200
+        assert (
+            all_data_response.headers.get(
+                'content-type') == 'application/json'
+        )
+        assert len(all_data_response.json()) == 1
+        assert isinstance(all_data_response.json(), list)
+        assert all_data_response.json() == response_all_data
+        assert all_data_response.json()[0].get('title') == create_menu_data['title']
+        assert all_data_response.json()[0].get('description') == create_menu_data['description']
 
     async def test_get_menu_detail_successful(
             self,
@@ -139,6 +171,25 @@ class TestMenuAPI:
                 'description') == update_menu_data.get('description')
         )
 
+    async def test_get_all_data_after_update_menu(
+            self,
+            all_data_response: Response,
+            response_all_data: dict[str, str | int | uuid.UUID],
+            update_menu_data: dict[str, str | int | uuid.UUID],
+    ):
+        """Test for getting all data after update."""
+
+        assert (
+            all_data_response.headers.get(
+                'content-type') == 'application/json'
+        )
+        assert all_data_response.status_code == 200
+        assert len(all_data_response.json()) == 1
+        assert isinstance(all_data_response.json(), list)
+        assert all_data_response.json() == response_all_data
+        assert all_data_response.json()[0].get('title') == update_menu_data['title']
+        assert all_data_response.json()[0].get('description') == update_menu_data['description']
+
     async def test_delete_menu_successful(
             self,
             delete_menu_response: Response
@@ -158,6 +209,20 @@ class TestMenuAPI:
         """Test to check menus after deletion of a menu."""
 
         await self.test_get_menu_empty_list(menus_list_response)
+
+    async def test_get_all_data_after_delete_menu(
+            self,
+            all_data_response: Response,
+    ):
+        """Test for getting all data after delete."""
+
+        assert (
+            all_data_response.headers.get(
+                'content-type') == 'application/json'
+        )
+        assert all_data_response.status_code == 200
+        assert isinstance(all_data_response.json(), list)
+        assert all_data_response.json() == []
 
     async def test_get_non_existent_menu(
             self,
