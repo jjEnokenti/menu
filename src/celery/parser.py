@@ -4,48 +4,76 @@ from typing import Any
 import openpyxl
 from _decimal import Decimal
 
+from src.celery.google_cloud_connect import get_data_from_cloud
+from src.config import settings
+
 
 class Parser:
 
-    def __init__(self, file_path):
-        self.path = file_path
-        self.wb = openpyxl.load_workbook(self.path)
-        self.active_sheet = self.wb.active
+    def __init__(self, mode):
+        if mode == 'CLOUD':
+            self.data = get_data_from_cloud()
+            self.get_data = self._parse_cloud_data(self.data)
+        else:
+            self.data = openpyxl.load_workbook(settings.ADMIN_FILE_PATH).active
+            self.get_data = self._parse_local_data(self.data)
 
-    def parse_obj(self) -> list:
-        """File parser."""
+    def _parse_local_data(self, data) -> list:
+        """Local file parser."""
 
-        data = []
+        res_data = []
 
-        for row in self.active_sheet.iter_rows():
-            if row[0].value and self.is_valid_uuid(row[0].value):
-                data.append(self.to_dict(*row[:3]))
-            elif row[1].value and self.is_valid_uuid(row[1].value):
-                data[-1]['submenus'] = data[-1].get('submenus', []) + [self.to_dict(*row[1:4])]
-            elif row[2].value and self.is_valid_uuid(row[2].value):
-                data[-1]['submenus'][-1]['dishes'] = data[-1]['submenus'][-1].get('dishes', []) + [
-                    self.to_dict(*row[2:6])
+        for row in data.iter_rows():
+            if row[0].value and self._is_valid_uuid(row[0].value):
+                res_data.append(self._to_dict(*[item.value for item in row[:3]]))
+            elif row[1].value and self._is_valid_uuid(row[1].value):
+                res_data[-1]['submenus'] = res_data[-1].get('submenus', []) + [
+                    self._to_dict(
+                        *[item.value for item in row[1:4]])
+                ]
+            elif row[2].value and self._is_valid_uuid(row[2].value):
+                res_data[-1]['submenus'][-1]['dishes'] = res_data[-1]['submenus'][-1].get('dishes', []) + [
+                    self._to_dict(
+                        *[item.value for item in row[2:6]]
+                    )
                 ]
 
-        return data
+        return res_data
+
+    def _parse_cloud_data(self, data):
+        """Cloud api sheet parser."""
+
+        res_data = []
+
+        for row in data:
+            if row[0] and self._is_valid_uuid(row[0]):
+                res_data.append(self._to_dict(*row[:3]))
+            elif row[1] and self._is_valid_uuid(row[1]):
+                res_data[-1]['submenus'] = res_data[-1].get('submenus', []) + [self._to_dict(*row[1:4])]
+            elif row[2] and self._is_valid_uuid(row[2]):
+                res_data[-1]['submenus'][-1]['dishes'] = res_data[-1]['submenus'][-1].get('dishes', []) + [
+                    self._to_dict(*row[2:6])
+                ]
+
+        return res_data
 
     @staticmethod
-    def to_dict(uid=None, title=None, description=None, price=None, *args, **kwargs) -> dict:
-        """Openpyxl object to dict serializer."""
+    def _to_dict(uid=None, title=None, description=None, price=None, *args, **kwargs) -> dict:
+        """Dict maker serializer."""
 
         result = {
-            'id': uuid.UUID(uid.value),
-            'title': title.value,
-            'description': description.value,
+            'id': uuid.UUID(uid),
+            'title': title,
+            'description': description,
         }
 
         if price:
-            result['price'] = Decimal(price.value).quantize(Decimal('0.00'))
+            result['price'] = Decimal(price).quantize(Decimal('0.00'))
 
         return result
 
     @staticmethod
-    def is_valid_uuid(uuid_str: Any) -> bool:
+    def _is_valid_uuid(uuid_str: Any) -> bool:
         """Uuid validator."""
         try:
             uuid_obj = uuid.UUID(uuid_str)
