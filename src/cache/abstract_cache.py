@@ -1,10 +1,20 @@
 from abc import ABC, abstractmethod
 
+from aioredis import Redis
+
+from src.cache.core import get_redis_instance
+from src.config import settings
+
+__all__ = (
+    'AbstractCache',
+    'RedisCache',
+)
+
 
 class AbstractCache(ABC):
 
     @abstractmethod
-    async def get(self, *args, **kwargs) -> list | dict | None:
+    async def get(self, *args, **kwargs) -> bytes | None:
         """Abstract get data by key method require for implementation."""
         pass
 
@@ -22,3 +32,40 @@ class AbstractCache(ABC):
     async def flush_all(self) -> None:
         """Abstract remove all data method require for implementation."""
         pass
+
+
+class RedisCache(AbstractCache):
+    """Redis repository,"""
+
+    def __init__(self, cache: Redis):
+        self.cache = cache
+
+    async def get_keys_by_pattern(self, pattern: str) -> list[str]:
+        """Get keys from cache by pattern."""
+        return await self.cache.keys(pattern)
+
+    async def get(self, key: str) -> bytes | None:
+        """Get data from cache by key."""
+        return await self.cache.get(key)
+
+    async def set(self, key: str, value: bytes, ex: int = 30) -> None:
+        """Set data into cache."""
+        await self.cache.set(
+            name=key,
+            value=value,
+            ex=settings.REDIS_CACHE_EXPIRE or ex,
+        )
+
+    async def delete(self, keys: list[str]) -> None:
+        """Remove data from cache by keys."""
+
+        await self.cache.unlink(*keys)
+
+    async def flush_all(self) -> None:
+        """Remove all data from cache."""
+
+        await self.cache.flushall()
+
+
+async def get_redis():
+    return RedisCache(await get_redis_instance())
