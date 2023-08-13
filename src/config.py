@@ -12,7 +12,8 @@ load_dotenv()
 
 class Settings(BaseSettings):
     """App settings."""
-    MODE: str
+    MODE: str = 'DEV'
+    FILE_READ_MODE: str = 'LOCAL'
 
     BASE_DIR: str = Path(__file__).resolve().parent.parent.as_posix()
     ADMIN_FILE_PATH: str = f'{BASE_DIR}/admin/Menu.xlsx'
@@ -33,6 +34,9 @@ class Settings(BaseSettings):
     RABBITMQ_HOST: str
     RABBITMQ_PORT: int = 5672
     CELERY_RESULT_BACKEND: str = 'rpc://'
+
+    SPREADSHEET_ID: str
+    CREDENTIALS_FILE: str = f'{BASE_DIR}/src/celery/credentials.json'
 
     @property
     def BROKER_URL(self) -> str:
