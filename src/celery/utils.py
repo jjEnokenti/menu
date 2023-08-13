@@ -112,10 +112,11 @@ class Synchronizer:
 
         for submenu in self.excel_submenus:
             if submenu not in self.db_submenus:
+                menu_id = self.excel_submenus[submenu]['menu_id']
                 self.session.add(models.Submenu(**self.excel_submenus[submenu]))
                 self.invalidate_keys.extend([
                     keys_for_cache_invalidation.MENUS_LIST,
-                    keys_for_cache_invalidation.DETAIL_MENU.format(submenu['menu_id'])]
+                    keys_for_cache_invalidation.DETAIL_MENU.format(menu_id)]
                 )
 
         for dish in self.excel_dishes:
