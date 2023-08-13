@@ -65,6 +65,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 2
+
   celery_beat:
     container_name: celery_beat
     restart: on-failure
@@ -109,7 +110,7 @@ services:
     ports:
       - ${API_PORT:-8000}:8000
     command: bash -c "alembic upgrade head &&
-      uvicorn main:app --reload --host ${API_HOST} --port ${API_PORT}"
+      uvicorn src.main:app --reload --host ${API_HOST} --port ${API_PORT}"
     depends_on:
       db:
         condition: service_healthy
