@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     CELERY_RESULT_BACKEND: str = 'rpc://'
 
     SPREADSHEET_ID: str
-    CREDENTIALS_FILE: str = f'{BASE_DIR}/src/celery/credentials.json'
+    CREDENTIALS_FILE: str = f'{BASE_DIR}/credentials.json'
 
     @property
     def BROKER_URL(self) -> str:
