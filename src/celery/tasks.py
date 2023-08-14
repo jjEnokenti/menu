@@ -21,10 +21,8 @@ async def run_synchronize():
 
 
 @app.task
-def generate_excel_table():
+def synchronize_db():
     """Excel file synchronization task."""
-
-    print('SUCCESS')
 
     loop = asyncio.get_event_loop()
     task = loop.create_task(run_synchronize())
@@ -33,7 +31,7 @@ def generate_excel_table():
 
 app.conf.beat_schedule = {
     'sync-every-15-seconds': {
-        'task': 'src.celery.tasks.generate_excel_table',
+        'task': 'src.celery.tasks.synchronize_db',
         'schedule': 15.0,
     },
 }
