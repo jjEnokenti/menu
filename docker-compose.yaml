@@ -79,7 +79,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-      celery_worker:
+      worker:
         condition: service_healthy
 
   api:
