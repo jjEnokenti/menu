@@ -88,6 +88,24 @@ class TestDishAPI:
                 'description') == response_dish_data.get('description')
         )
 
+    async def test_get_all_data_after_create_dish(
+            self,
+            all_data_response: Response,
+            dish_list_response: Response,
+            get_menu_id: uuid.UUID,
+            get_submenu_id: uuid.UUID,
+    ):
+        """Test for getting a list of all data after dish creation."""
+
+        response_data = all_data_response.json()
+
+        assert all_data_response.headers.get(
+            'content-type') == 'application/json'
+        assert all_data_response.status_code == 200
+        assert response_data[0].get('id') == get_menu_id
+        assert response_data[0].get('submenus')[0].get('id') == get_submenu_id
+        assert response_data[0].get('submenus')[0].get('dishes') == dish_list_response.json()
+
     async def test_get_list_of_dishes_not_empty(
             self,
             dish_list_response: Response,
@@ -211,6 +229,23 @@ class TestDishAPI:
         """Test for getting an empty list of dishes after deletion."""
 
         await self.test_get_list_of_dishes_empty(dish_list_response)
+
+    async def test_get_all_data_after_delete_dish(
+            self,
+            all_data_response: Response,
+            get_menu_id: uuid.UUID,
+            get_submenu_id: uuid.UUID,
+    ):
+        """Test for getting a list of all data after dish deletion."""
+
+        response_data = all_data_response.json()
+
+        assert all_data_response.headers.get(
+            'content-type') == 'application/json'
+        assert all_data_response.status_code == 200
+        assert response_data[0].get('id') == get_menu_id
+        assert response_data[0].get('submenus')[0].get('id') == get_submenu_id
+        assert response_data[0].get('submenus')[0].get('dishes') == []
 
     async def test_get_non_existent_dish(
             self,
