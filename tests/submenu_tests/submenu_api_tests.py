@@ -9,7 +9,6 @@ class TestSubmenuAPI:
             self,
             create_menu_response: Response,
             response_menu_data: dict[str, str | int | uuid.UUID],
-            create_menu_data: dict[str, str]
     ):
         """Test creating a menu for further testing of the submenu."""
 
@@ -63,6 +62,31 @@ class TestSubmenuAPI:
             create_submenu_response.json().get(
                 'description') == create_submenu_data.get('description')
         )
+
+    async def test_get_all_data_after_create_submenu(
+            self,
+            all_data_response: Response,
+            submenus_list_response: Response,
+            get_menu_id: uuid.UUID,
+            get_submenu_id: uuid.UUID,
+    ):
+        """Test for getting a list of all data after submenu creation."""
+
+        submenu_data = submenus_list_response.json()[0]
+        all_data = all_data_response.json()[0]
+        expected_data = [{
+            'id': get_submenu_id,
+            'title': submenu_data['title'],
+            'description': submenu_data['description'],
+            'dishes': [],
+        }]
+
+        assert all_data_response.headers.get(
+            'content-type') == 'application/json'
+        assert all_data_response.status_code == 200
+        assert all_data.get('id') == get_menu_id
+        assert all_data.get('submenus') == expected_data
+        assert all_data.get('submenus')[0].get('dishes') == []
 
     async def test_get_submenu_list_not_empty(
             self,
@@ -188,6 +212,21 @@ class TestSubmenuAPI:
         """Test to check submenus after deletion of a submenu."""
 
         await self.test_get_submenu_empty_list(submenus_list_response)
+
+    async def test_get_all_data_after_delete_submenu(
+            self,
+            all_data_response: Response,
+            get_menu_id: uuid.UUID,
+    ):
+        """Test to check submenus in all data after deletion of a submenu."""
+
+        all_data = all_data_response.json()[0]
+
+        assert all_data_response.headers.get(
+            'content-type') == 'application/json'
+        assert all_data_response.status_code == 200
+        assert all_data.get('id') == get_menu_id
+        assert all_data.get('submenus') == []
 
     async def test_get_non_existent_submenu(
             self,
