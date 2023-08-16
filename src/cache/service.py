@@ -56,10 +56,11 @@ class CacheService:
             self,
             key: str,
             value: Sequence | Row | decimal.Decimal,
-            ex: int = 30,
+            ex: int | None = None,
     ) -> None:
         """Set data into cache method."""
-        ex = settings.REDIS_CACHE_EXPIRE or ex
+        if ex is None:
+            ex = settings.REDIS_CACHE_EXPIRE
         try:
             value = pickle.dumps(value)
             await self.cache.set(key, value, ex=ex)
