@@ -1,3 +1,4 @@
+import decimal
 import pickle
 import uuid
 from typing import Sequence
@@ -7,12 +8,40 @@ from sqlalchemy import Row
 
 from src.api.keys_for_cache_invalidation import ALL_DATA
 from src.cache.cache import RedisCache, get_redis
+from src.config import settings
 
 
 class CacheService:
 
     def __init__(self, cache: RedisCache):
         self.cache = cache
+
+    async def get_keys_by_pattern(self, key: str) -> list:
+        """Get keys from cache by pattern."""
+
+        return [key.decode('utf-8') for key in await self.cache.get_keys_by_pattern(rf'*{key}*')]
+
+    async def get_discount(self, key: str | uuid.UUID) -> str | None:
+        """Get discount by key."""
+
+        key = f'discount:{key}'
+
+        discounts = await self.get_discounts()
+
+        return discounts.get(key)
+
+    async def get_discounts(self) -> dict:
+        """Get all discount objects."""
+        discounts = {}
+        pattern = r'*discount*'
+
+        keys = await self.get_keys_by_pattern(pattern)
+
+        for key in keys:
+            value = await self.get_obj_from_cache(key)
+            discounts[key] = value
+
+        return discounts
 
     async def get_obj_from_cache(self, key: str) -> Sequence | Row | None:
         """Get object from cache method."""
@@ -26,12 +55,14 @@ class CacheService:
     async def set_value_into_cache(
             self,
             key: str,
-            value: Sequence | Row,
+            value: Sequence | Row | decimal.Decimal,
+            ex: int = 30,
     ) -> None:
         """Set data into cache method."""
+        ex = settings.REDIS_CACHE_EXPIRE or ex
         try:
             value = pickle.dumps(value)
-            await self.cache.set(key, value)
+            await self.cache.set(key, value, ex=ex)
         except exceptions.RedisError as error:
             # todo: add logging
             print(error.args)
@@ -45,9 +76,7 @@ class CacheService:
 
         try:
             if invalid_key:
-                cache_keys = await self.cache.get_keys_by_pattern(
-                    pattern=rf'*{str(invalid_key)}*'
-                )
+                cache_keys = await self.get_keys_by_pattern(rf'*{str(invalid_key)}*')
                 keys.extend(cache_keys)
 
             await self.cache.delete(keys)
