@@ -17,19 +17,23 @@ class Synchronizer:
         self.excel_data = excel_data
         self.cache = cache
 
-        self.excel_menus: dict = {}
-        self.excel_submenus: dict = {}
-        self.excel_dishes: dict = {}
+        self.excel_menus: dict[str, dict] = {}
+        self.excel_submenus: dict[str, dict] = {}
+        self.excel_dishes: dict[str, dict] = {}
 
-        self.db_menus: dict = {}
-        self.db_submenus: dict = {}
-        self.db_dishes: dict = {}
+        self.db_menus: dict[str, dict] = {}
+        self.db_submenus: dict[str, dict] = {}
+        self.db_dishes: dict[str, dict] = {}
 
-        self.menus_for_update: list = []
-        self.submenus_for_update: list = []
-        self.dishes_for_update: list = []
+        self.menus_for_update: list[dict] = []
+        self.submenus_for_update: list[dict] = []
+        self.dishes_for_update: list[dict] = []
 
-        self.invalidate_keys: list = []
+        self.discount_prices: list[tuple] = []
+
+        self.discounts: dict[str, str] = {}
+
+        self.invalidate_keys: list[str] = []
 
     async def setup(self) -> None:
         """Checking data for changes and further synchronizing them."""
@@ -37,11 +41,13 @@ class Synchronizer:
         async with self.session.begin():
             db_data = [item.as_dict() for item in await self.db_data()]
 
-            if db_data == self.excel_data:
-                return None
+            self.discounts = await self.cache.get_discounts()
 
-            self.parser_data(db_data, is_db=True)
-            self.parser_data(self.excel_data)
+            await self.parser_data(db_data, is_db=True)
+            await self.parser_data(self.excel_data)
+
+            if db_data == self.excel_data and not self.discount_prices and not self.invalidate_keys:
+                return None
 
             await self.create_items()
             await self.delete_items()
@@ -49,6 +55,10 @@ class Synchronizer:
 
             if self.invalidate_keys:
                 await self.cache.cache_invalidate(*self.invalidate_keys)
+
+            if self.discount_prices:
+                for discount in self.discount_prices:
+                    await self.cache.set_value_into_cache(key=discount[0], value=discount[1], ex=3600)
 
     async def db_data(self) -> Sequence:
         """Get all data."""
@@ -176,17 +186,17 @@ class Synchronizer:
             return None
 
         if dish_for_delete_id:
-            dishes = [self.db_dishes[dish] for dish in dish_for_delete_id]
+            dishes = [self.db_dishes[dish_id] for dish_id in dish_for_delete_id]
 
             for dish in dishes:
                 menu_id = dish['menu_id']
-                dish = await self.session.get(models.Dish, dish['id'])
+                dish_entity: type[models.Dish] | None = await self.session.get(models.Dish, dish['id'])
 
-                await self.session.delete(dish)
+                await self.session.delete(dish_entity)
                 await self.cache.cache_invalidate(
-                    keys_for_cache_invalidation.DISHES_LIST.format(menu_id, dish.submenu_id),
-                    keys_for_cache_invalidation.DETAIL_DISH.format(menu_id, dish.submenu_id, dish.id),
-                    keys_for_cache_invalidation.DETAIL_SUBMENU.format(menu_id, dish.submenu_id),
+                    keys_for_cache_invalidation.DISHES_LIST.format(menu_id, dish['submenu_id']),
+                    keys_for_cache_invalidation.DETAIL_DISH.format(menu_id, dish['submenu_id'], dish['id']),
+                    keys_for_cache_invalidation.DETAIL_SUBMENU.format(menu_id, dish['submenu_id']),
                     keys_for_cache_invalidation.SUBMENUS_LIST.format(menu_id),
                     keys_for_cache_invalidation.DETAIL_MENU.format(menu_id),
                     keys_for_cache_invalidation.MENUS_LIST,
@@ -201,7 +211,7 @@ class Synchronizer:
 
         return query.scalars().unique().all()
 
-    def parser_data(self, data: list, is_db=False) -> None:
+    async def parser_data(self, data: list, is_db=False) -> None:
         """Parse data to separation of entities into separate variables."""
 
         for menu in data:
@@ -222,10 +232,37 @@ class Synchronizer:
                 for dish in dishes:
                     dish['submenu_id'] = submenu['id']
                     dish['menu_id'] = menu['id']
+
                     if is_db:
                         self.db_dishes[dish['id']] = dish
+                        continue
+
+                    key = f'discount:{dish["id"]}'
+                    inv_keys = await self.cache.get_keys_by_pattern(menu['id'])
+
+                    if 'discount' in dish:
+
+                        if dish['discount'] != self.discounts.get(key):
+                            self.discount_prices.append((key, dish['discount']))
+                            self.invalidate_keys.extend([
+                                keys_for_cache_invalidation.DETAIL_DISH.format(
+                                    menu['id'], submenu['id'], dish['id']
+                                ),
+                                keys_for_cache_invalidation.DISHES_LIST.format(
+                                    menu['id'], submenu['id']
+                                ),
+                                *inv_keys
+                            ])
+                        dish.pop('discount')
+
                     else:
-                        self.excel_dishes[dish['id']] = dish
+                        if key in self.discounts:
+                            self.invalidate_keys.extend([
+                                key,
+                                *inv_keys
+                            ])
+
+                    self.excel_dishes[dish['id']] = dish
 
     def data_for_update(self):
         """Prepare items for update."""
