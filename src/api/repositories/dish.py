@@ -1,7 +1,6 @@
 import uuid
-from typing import Sequence
 
-from sqlalchemy import Row, Select, select
+from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.repositories.abstract_repository import AbstractRepository
@@ -42,7 +41,7 @@ class DishRepository(AbstractRepository):
             menu_id: uuid.UUID,
             submenu_id: uuid.UUID,
             dish_id: uuid.UUID,
-    ) -> Row | None:
+    ) -> dict | None:
         """Get detail of dish from DB."""
 
         result = await self.session.execute(
@@ -54,13 +53,15 @@ class DishRepository(AbstractRepository):
             )
         )
 
-        return result.first()
+        dish = result.first()
+
+        return dish._asdict() if dish else dish
 
     async def get_list(
             self,
             menu_id: uuid.UUID,
             submenu_id: uuid.UUID,
-    ) -> Sequence[Row]:
+    ) -> list[dict]:
         """Get list of dishes from DB."""
 
         result = await self.session.execute(
@@ -70,7 +71,7 @@ class DishRepository(AbstractRepository):
             )
         )
 
-        return result.all()
+        return [dish._asdict() for dish in result.all()]
 
     async def create(self, data: dict, **kwargs) -> models.Dish:
         """Create new dish."""
