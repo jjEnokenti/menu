@@ -1,14 +1,23 @@
 import decimal
 import pickle
 import uuid
+from pathlib import Path
 from typing import Sequence
 
 from aioredis import exceptions
+from loguru import logger
 from sqlalchemy import Row
 
 from src.api.keys_for_cache_invalidation import ALL_DATA
 from src.cache.cache import RedisCache, get_redis
 from src.config import settings
+
+log_path = Path(f'{settings.BASE_DIR}/logs/cache')
+log_path.mkdir(parents=True, exist_ok=True)
+
+logger.add(f'{log_path}/cache_error.log', level='ERROR',
+           format='{time} | [{level}] | {name}::{function}: line {line} | {message}', rotation='20 KB',
+           compression='zip')
 
 
 class CacheService:
@@ -65,8 +74,7 @@ class CacheService:
             value = pickle.dumps(value)
             await self.cache.set(key, value, ex=ex)
         except exceptions.RedisError as error:
-            # todo: add logging
-            print(error.args)
+            logger.error(error)
 
     async def cache_invalidate(
             self, *args,
@@ -82,8 +90,7 @@ class CacheService:
 
             await self.cache.delete(keys)
         except exceptions.RedisError as error:
-            # todo: add logging
-            print(error.args)
+            logger.error(error)
 
 
 async def get_cache():
