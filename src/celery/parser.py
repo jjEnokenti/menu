@@ -74,7 +74,7 @@ class Parser:
                 if discount < 100:
                     result['discount'] = Decimal(price - price * discount / 100).quantize(Decimal('0.00'))
                 else:
-                    result['discount'] = Decimal(0)
+                    result['discount'] = Decimal(0.00).quantize(Decimal('0.00'))
         return result
 
     @staticmethod
