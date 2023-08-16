@@ -8,6 +8,7 @@ from sqlalchemy import Row
 from src.api import keys_for_cache_invalidation
 from src.api.repositories.menu import MenuRepository
 from src.api.schemas import MenuCreate, MenuUpdate, Status
+from src.api.services.utils import set_discounts
 from src.cache.service import CacheService
 from src.db import models
 
@@ -78,7 +79,7 @@ class MenuService:
 
         return menus
 
-    async def get_all_detail_data(self) -> list:
+    async def get_all_detail_data(self) -> list | Sequence:
         """Get all data from database."""
         items = await self.cache.get_obj_from_cache(keys_for_cache_invalidation.ALL_DATA)
 
@@ -92,12 +93,20 @@ class MenuService:
                 )
 
             if items:
+                for menu in items:
+                    for submenu in menu['submenus']:
+                        if submenu['dishes']:
+                            discounts = await self.cache.get_discounts()
+                            if discounts:
+                                dishes = await set_discounts(discounts, submenu['dishes'])
+                                submenu['dishes'] = dishes
+
                 await self.cache.set_value_into_cache(
                     key=keys_for_cache_invalidation.ALL_DATA,
                     value=items
                 )
 
-        return [item.as_dict() for item in items]
+        return items
 
     async def create(
             self,
