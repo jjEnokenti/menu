@@ -70,8 +70,11 @@ class Parser:
         if price:
             result['price'] = Decimal(price).quantize(Decimal('0.00'))
         if discount:
-            result['discount'] = Decimal(price - price * discount / 100).quantize(Decimal('0.00'))
-
+            if isinstance(discount, (int, float)):
+                if discount < 100:
+                    result['discount'] = Decimal(price - price * discount / 100).quantize(Decimal('0.00'))
+                else:
+                    result['discount'] = Decimal(0)
         return result
 
     @staticmethod
