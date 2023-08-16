@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from aioredis import Redis
 
 from src.cache.core import get_redis_instance
-from src.config import settings
 
 __all__ = (
     'AbstractCache',
@@ -49,12 +48,12 @@ class RedisCache(AbstractCache):
         """Get data from cache by key."""
         return await self.cache.get(key)
 
-    async def set(self, key: str, value: bytes, ex: int = 30) -> None:
+    async def set(self, key: str, value: bytes, ex: int) -> None:
         """Set data into cache."""
         await self.cache.set(
             name=key,
             value=value,
-            ex=settings.REDIS_CACHE_EXPIRE or ex,
+            ex=ex,
         )
 
     async def delete(self, keys: list[str]) -> None:
