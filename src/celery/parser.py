@@ -34,7 +34,7 @@ class Parser:
             elif row[2].value and self._is_valid_uuid(row[2].value):
                 res_data[-1]['submenus'][-1]['dishes'] = res_data[-1]['submenus'][-1].get('dishes', []) + [
                     self._to_dict(
-                        *[item.value for item in row[2:6]]
+                        *[item.value for item in row[2:7]]
                     )
                 ]
 
@@ -52,13 +52,13 @@ class Parser:
                 res_data[-1]['submenus'] = res_data[-1].get('submenus', []) + [self._to_dict(*row[1:4])]
             elif row[2] and self._is_valid_uuid(row[2]):
                 res_data[-1]['submenus'][-1]['dishes'] = res_data[-1]['submenus'][-1].get('dishes', []) + [
-                    self._to_dict(*row[2:6])
+                    self._to_dict(*row[2:7])
                 ]
 
         return res_data
 
     @staticmethod
-    def _to_dict(uid=None, title=None, description=None, price=None, *args, **kwargs) -> dict:
+    def _to_dict(uid=None, title=None, description=None, price=None, discount=None, *args, **kwargs) -> dict:
         """Dict maker serializer."""
 
         result = {
@@ -69,6 +69,8 @@ class Parser:
 
         if price:
             result['price'] = Decimal(price).quantize(Decimal('0.00'))
+        if discount:
+            result['discount'] = Decimal(price - price * discount / 100).quantize(Decimal('0.00'))
 
         return result
 
