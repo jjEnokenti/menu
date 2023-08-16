@@ -41,7 +41,7 @@ class RedisCache(AbstractCache):
     def __init__(self, cache: Redis):
         self.cache = cache
 
-    async def get_keys_by_pattern(self, pattern: str) -> list[str]:
+    async def get_keys_by_pattern(self, pattern: str = '*') -> list[bytes]:
         """Get keys from cache by pattern."""
         return await self.cache.keys(pattern)
 
