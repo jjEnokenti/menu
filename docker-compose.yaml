@@ -56,6 +56,7 @@ services:
       - .env
     command: bash -c "celery -A src.celery.app worker -l info"
     volumes:
+      - ./logs/:/app/logs/
       - ./admin:/app/admin
     depends_on:
       rabbitmq:
@@ -107,6 +108,7 @@ services:
       - .env
     volumes:
       - ./:/app
+      - ./logs/:/app/logs/
     ports:
       - ${API_PORT:-8000}:8000
     command: bash -c "alembic upgrade head &&
@@ -119,3 +121,5 @@ services:
 
 volumes:
   postgres-data:
+  admin:
+  logs:
