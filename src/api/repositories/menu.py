@@ -43,7 +43,7 @@ class MenuRepository(AbstractRepository):
             self.model.id
         )
 
-    async def get_all_detail_data(self) -> Sequence[models.Menu]:
+    async def get_all_detail_data(self) -> list[dict]:
         """Get all data."""
 
         items = await self.session.execute(
@@ -54,7 +54,7 @@ class MenuRepository(AbstractRepository):
             )
         )
 
-        return items.scalars().unique().all()
+        return [item.as_dict() for item in items.scalars().unique().all()]
 
     async def get_detail(self, uid: uuid.UUID) -> Row | None:
         """Get detail of menu from DB."""
