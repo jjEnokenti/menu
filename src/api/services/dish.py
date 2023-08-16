@@ -8,6 +8,7 @@ from sqlalchemy import Row
 from src.api import keys_for_cache_invalidation
 from src.api.repositories.dish import DishRepository
 from src.api.schemas import DishCreate, DishUpdate, Status
+from src.api.services.utils import set_discount, set_discounts
 from src.cache.service import CacheService
 from src.db import models
 
@@ -24,7 +25,7 @@ class DishService:
             menu_id: uuid.UUID,
             submenu_id: uuid.UUID,
             dish_id: uuid.UUID,
-    ) -> Row:
+    ) -> Sequence | dict | None:
         """Get detail of dish from cache DB."""
 
         dish = await self.cache.get_obj_from_cache(
@@ -44,16 +45,21 @@ class DishService:
                     detail=error.args
                 )
 
-        if not dish:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='dish not found'
-            )
+            if dish:
+                discount = await self.cache.get_discount(dish_id)
+                if discount:
+                    dish = await set_discount(dish, discount)
 
-        await self.cache.set_value_into_cache(
-            keys_for_cache_invalidation.DETAIL_DISH.format(menu_id, submenu_id, dish_id),
-            dish,
-        )
+                await self.cache.set_value_into_cache(
+                    keys_for_cache_invalidation.DETAIL_DISH.format(menu_id, submenu_id, dish_id),
+                    dish,
+                )
+
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail='dish not found'
+                )
 
         return dish
 
@@ -81,6 +87,11 @@ class DishService:
                 )
 
             if dishes:
+
+                discounts = await self.cache.get_discounts()
+                if discounts:
+                    dishes = await set_discounts(discounts, dishes)
+
                 await self.cache.set_value_into_cache(
                     keys_for_cache_invalidation.DISHES_LIST.format(menu_id, submenu_id),
                     dishes,
